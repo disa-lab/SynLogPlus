@@ -1,0 +1,224 @@
+import re
+import os
+import sys
+import csv
+import copy
+import json
+import torch
+import math
+import argparse
+import datetime
+from pathlib import Path
+# sys.path.append(str(Path(__file__).parent))
+
+from tqdm.auto import tqdm
+import numpy as np
+import pandas as pd
+import torch.nn as nn
+import torch.utils.data as Data
+import transformers as trf
+
+from .settings import benchmark_settings
+from .settings import get_attn_pad_mask, get_attn_pad_mask_rev
+from .loader import load_data
+from .transformer_encoder import BERT, MyDataSet
+from .utils import *
+
+def read_logs(logdir, dataset, use_full=False):
+    logdir = Path(logdir) if isinstance(logdir,str) else logdir
+    if use_full:
+        log_file = logdir / dataset / '{}_full.log'.format(dataset)
+        ground_file = logdir / dataset / '{}_full.log_structured.csv'.format(dataset)
+    else:
+        log_file = logdir / dataset / '{}_2k.log'.format(dataset)
+        ground_file = logdir / dataset / '{}_2k.log_structured_corrected.csv'.format(dataset)
+
+    df = load_data(benchmark_settings[dataset]['log_format'], log_file)
+    log_messages = df['Content'].map(str).tolist()
+    # XXX: removing double-spaces
+    log_messages = [re.sub(r'\s+', ' ', e.strip()) for e in log_messages]
+
+    log_templates = pd.read_csv(ground_file,dtype=str)['EventTemplate'].map(str).tolist()
+    return log_messages, log_templates
+
+class LogParser:
+    def __init__(self, dataset, model, tokenizer, threshold, maxlen=128, word_maxlen=16):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = model.to(self.device)
+        self.tokenizer = tokenizer
+        self.threshold = threshold
+        self.dataset = dataset
+        self.maxlen = maxlen
+        self.word_maxlen = word_maxlen
+
+    def setup_log_groups(self, log_templates):
+        log_groups = {}
+        for idx,template in enumerate(log_templates):
+            template_split = tuple(wordsplit(template, self.dataset, granular=False))
+            log_groups.setdefault(template_split, []).append(idx)
+        return log_groups
+
+    def create_train_data_from_historical_log(self, log_messages, log_templates):
+        maxlen, word_maxlen = self.maxlen, self.word_maxlen
+
+        train_data = []
+        for log,template in zip(log_messages,log_templates):
+            log = wordsplit(log,self.dataset)
+            # print(log)
+            variable_tokens = []
+            indexed_tokens = []
+            _parsed_template = []
+            for word in log:
+                tokenized_text = self.tokenizer.tokenize(word)
+                index_new = self.tokenizer.convert_tokens_to_ids(tokenized_text)
+                if len(index_new) > word_maxlen:
+                    index_new = index_new[:word_maxlen]
+                else:
+                    index_new = index_new + (word_maxlen - len(index_new)) * [0]
+                if word not in template:
+                    _parsed_template.append("<*>")
+                    variable_tokens_this_word = [1] * word_maxlen
+                else:
+                    _parsed_template.append(word)
+                    variable_tokens_this_word = [0] * word_maxlen
+                indexed_tokens.extend(index_new)
+                variable_tokens.extend(variable_tokens_this_word)
+            # print(log)
+            # print(_parsed_template)
+            tokens_id_tensor = torch.tensor([indexed_tokens])
+            tokens_index = np.squeeze(tokens_id_tensor.numpy()).tolist()
+
+            tokens_index = tokens_index if len(tokens_index) < maxlen*word_maxlen else tokens_index[:maxlen*word_maxlen]
+            n_pad = maxlen * word_maxlen - len(tokens_index)
+            tokens_index.extend([0] * n_pad)
+            variable_tokens.extend([0] * n_pad)
+
+            train_data.append([tokens_index,variable_tokens])
+        # print(len(train_data))
+        # print(len(train_data[0][0]), len(train_data[0][1]))
+        # print(len(train_data[1][0]), len(train_data[1][1]))
+        # print(train_data[0])
+        return train_data
+
+    def train_classifier(self, train_data, n_epochs=3, batchsize=10):
+        device = self.device
+
+        # torch.cuda.empty_cache()
+        input_ids, masked_tokens = zip(*train_data)
+        input_ids, masked_tokens = torch.LongTensor(input_ids), torch.LongTensor(masked_tokens)
+        loader = Data.DataLoader(MyDataSet(input_ids, masked_tokens), batchsize, False)
+
+        loss_fct = nn.BCELoss()
+        optimizer = torch.optim.Adam(self.model.parameters(),lr=0.001)
+
+        self.model.train()
+        losses = []
+        for epoch in range(n_epochs):
+            for (input_ids_train, masked_tokens_train) in loader:
+
+                input_ids_train, masked_tokens_train = input_ids_train.to(device), masked_tokens_train.to(device)
+
+                self_attn_mask = get_attn_pad_mask_rev(input_ids_train,masked_tokens_train)
+                self_attn_mask = None
+                logits_lm = self.model(input_ids_train, stage='train', enc_self_attn_mask=self_attn_mask).to(device)
+                a = logits_lm.squeeze(-1)
+                b = input_ids_train.clone()
+                c = torch.where(b != 0, 1, 0)
+                e = torch.where(masked_tokens_train.clone() != -1, 1, 0)
+                # print(logits_lm.shape,a.shape,b.shape,c.shape)
+                d = a * c
+                # if is_ttt: continue
+                mask = d > 0  #
+                x_selected = d[mask]  #
+                y_selected = masked_tokens_train[mask]
+                loss_lm = loss_fct(x_selected.to(device),
+                                y_selected.float()).to(device)
+                loss_lm = (loss_lm.float()).mean().to(device)
+                losses.append(loss_lm)
+                loss = loss_lm.to(device)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+        # f_loss = open("losses.txt", "w")
+        # for loss in losses:
+        #     print(loss, file=f_loss)
+        # f_loss.close()
+
+    def _get_prediction(self, logsplit):
+        maxlen = self.maxlen
+        word_maxlen = self.word_maxlen
+        device = self.device
+
+        # print(logsplit)
+        input_ids = tokenize_words(logsplit, self.tokenizer, word_maxlen)
+        input_ids = input_ids[:maxlen*word_maxlen] if len(input_ids)>=maxlen*word_maxlen else input_ids
+        input_ids.extend([0] * (maxlen*word_maxlen - len(input_ids)))
+        input_ids = [input_ids]
+        input_ids = torch.LongTensor(input_ids).to(device)
+
+        self.model.eval()
+        # self_attn_mask = get_attn_pad_mask_rev(input_ids, )
+        logits_lm = self.model(input_ids, stage='train', enc_self_attn_mask=None).to(device)
+
+        # print(len(logits_lm[0]))
+        true_length = len(logsplit)
+        input_ids_this = input_ids[0].cpu().detach().numpy().tolist()
+        predict = logits_lm[0]
+        predict_distrbution = predict.cpu().detach().numpy().tolist()
+        predict_for_words = []
+        for _count in range(true_length):
+            count = _count * word_maxlen
+            input_ids_this_word = input_ids_this[count:count + word_maxlen]
+            if 0 in input_ids_this_word:
+                zero_index = input_ids_this_word.index(0)
+            else:
+                zero_index = word_maxlen
+            if zero_index == 0:
+                predict_for_words.append(0)
+                continue
+            probablity = predict_distrbution[count:count + word_maxlen]
+            representative = max(probablity[0:zero_index])
+            predict_for_words.extend(representative)
+            # representative = np.mean(probablity[0:zero_index]).item()
+            # predict_for_words.append(representative)
+        # print(predict_for_words)
+        assert len(predict_for_words) == len(logsplit)
+        parsed_template = [
+            logsplit[i]
+            if not exclude_digits(logsplit[i]) and predict_for_words[i] < self.threshold else "<*>"
+            for i in range(len(predict_for_words))
+        ]
+        return parsed_template, predict_for_words
+
+    def get_predictions(self, logmsg):
+        maxlen = 128 # max number of words in a log
+        word_maxlen=16 # max sub tokens in a word
+
+        logsplit = wordsplit(logmsg,self.dataset)
+        parsed_template, predict_for_words = self._get_prediction(logsplit)
+
+        # print(logsplit)
+        # print(["{0:0.3f}".format(i) for i in predict_for_words])
+        # print(parsed_template)
+
+        return parsed_template, predict_for_words
+
+    def train(self, log_messages, log_templates, n_epochs=3):
+        train_data = self.create_train_data_from_historical_log(log_messages, log_templates)
+        self.train_classifier(train_data, n_epochs)
+
+    def parse(self, log_messages, log_groups, history_cutoff):
+        for log_id, logmsg in tqdm(enumerate(log_messages),total=len(log_messages)):
+            if log_id < history_cutoff: continue
+            # if log_id >= 500: break
+            logsplit = wordsplit(logmsg, self.dataset, granular=False)
+            templ = match_with_existing_groups(log_groups, logsplit, self.dataset, log_id)
+            if templ is not None:
+                log_groups.setdefault(templ, []).append(log_id)
+            else:
+                parsed_template, probabilities = self.get_predictions(logmsg)
+                log_groups.setdefault(tuple(parsed_template), []).append(log_id)
+
+        predictions = update_templates(log_groups, log_messages)
+        return predictions
