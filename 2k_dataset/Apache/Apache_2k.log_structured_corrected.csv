@@ -794,13 +794,13 @@ LineId,Time,Level,Content,EventId,EventTemplate
 793,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 794,Sun Dec 04 17:43:12 2005,error,mod_jk child workerEnv in error state 8,E3,mod_jk child workerEnv in error state <*>
 795,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-796,Sun Dec 04 17:43:12 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+796,Sun Dec 04 17:43:12 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 797,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 798,Sun Dec 04 17:43:12 2005,error,mod_jk child workerEnv in error state 7,E3,mod_jk child workerEnv in error state <*>
 799,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 800,Sun Dec 04 17:43:12 2005,error,mod_jk child workerEnv in error state 9,E3,mod_jk child workerEnv in error state <*>
 801,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-802,Sun Dec 04 17:43:12 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+802,Sun Dec 04 17:43:12 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 803,Sun Dec 04 17:43:12 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 804,Sun Dec 04 17:43:12 2005,error,mod_jk child workerEnv in error state 6,E3,mod_jk child workerEnv in error state <*>
 805,Sun Dec 04 17:53:43 2005,error,[client 218.39.132.175] Directory index forbidden by rule: /var/www/html/,E4,[client <*>] Directory index forbidden by rule: <*>
@@ -1035,21 +1035,21 @@ LineId,Time,Level,Content,EventId,EventTemplate
 1034,Sun Dec 04 20:47:16 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 1035,Sun Dec 04 20:47:16 2005,error,mod_jk child workerEnv in error state 6,E3,mod_jk child workerEnv in error state <*>
 1036,Sun Dec 04 20:47:16 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1037,Sun Dec 04 20:47:16 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1037,Sun Dec 04 20:47:16 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1038,Sun Dec 04 20:47:16 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 1039,Sun Dec 04 20:47:16 2005,error,mod_jk child workerEnv in error state 9,E3,mod_jk child workerEnv in error state <*>
 1040,Sun Dec 04 20:47:17 2005,error,jk2_init() Can't find child 2085 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1041,Sun Dec 04 20:47:17 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1042,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1042,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1043,Sun Dec 04 20:47:17 2005,error,jk2_init() Can't find child 2086 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1044,Sun Dec 04 20:47:17 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1045,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1045,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1046,Sun Dec 04 20:47:17 2005,error,jk2_init() Can't find child 2087 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1047,Sun Dec 04 20:47:17 2005,notice,jk2_init() Found child 2084 in scoreboard slot 9,E1,jk2_init() Found child <*> in scoreboard slot <*>
 1048,Sun Dec 04 20:47:17 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 1049,Sun Dec 04 20:47:17 2005,error,mod_jk child workerEnv in error state 7,E3,mod_jk child workerEnv in error state <*>
 1050,Sun Dec 04 20:47:17 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1051,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1051,Sun Dec 04 20:47:17 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1052,Mon Dec 05 01:04:31 2005,error,[client 218.62.18.218] Directory index forbidden by rule: /var/www/html/,E4,[client <*>] Directory index forbidden by rule: <*>
 1053,Mon Dec 05 01:30:32 2005,error,[client 211.62.201.48] Directory index forbidden by rule: /var/www/html/,E4,[client <*>] Directory index forbidden by rule: <*>
 1054,Mon Dec 05 03:21:00 2005,notice,jk2_init() Found child 2760 in scoreboard slot 6,E1,jk2_init() Found child <*> in scoreboard slot <*>
@@ -1361,9 +1361,9 @@ LineId,Time,Level,Content,EventId,EventTemplate
 1360,Mon Dec 05 07:57:02 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
 1361,Mon Dec 05 07:57:02 2005,error,mod_jk child workerEnv in error state 6,E3,mod_jk child workerEnv in error state <*>
 1362,Mon Dec 05 07:57:02 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1363,Mon Dec 05 07:57:02 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1363,Mon Dec 05 07:57:02 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1364,Mon Dec 05 07:57:02 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1365,Mon Dec 05 07:57:02 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1365,Mon Dec 05 07:57:02 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1366,Mon Dec 05 09:09:48 2005,error,[client 207.12.15.211] Directory index forbidden by rule: /var/www/html/,E4,[client <*>] Directory index forbidden by rule: <*>
 1367,Mon Dec 05 09:36:13 2005,notice,jk2_init() Found child 5271 in scoreboard slot 7,E1,jk2_init() Found child <*> in scoreboard slot <*>
 1368,Mon Dec 05 09:36:13 2005,notice,jk2_init() Found child 5270 in scoreboard slot 6,E1,jk2_init() Found child <*> in scoreboard slot <*>
@@ -1541,16 +1541,16 @@ LineId,Time,Level,Content,EventId,EventTemplate
 1540,Mon Dec 05 11:06:51 2005,error,mod_jk child workerEnv in error state 6,E3,mod_jk child workerEnv in error state <*>
 1541,Mon Dec 05 11:06:52 2005,error,jk2_init() Can't find child 5619 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1542,Mon Dec 05 11:06:52 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1543,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1543,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1544,Mon Dec 05 11:06:52 2005,error,jk2_init() Can't find child 5620 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1545,Mon Dec 05 11:06:52 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1546,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1546,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1547,Mon Dec 05 11:06:52 2005,error,jk2_init() Can't find child 5621 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1548,Mon Dec 05 11:06:52 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1549,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1549,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1550,Mon Dec 05 11:06:52 2005,error,jk2_init() Can't find child 5622 in scoreboard,E5,jk2_init() Can't find child <*> in scoreboard
 1551,Mon Dec 05 11:06:52 2005,notice,workerEnv.init() ok /etc/httpd/conf/workers2.properties,E2,workerEnv.init() ok <*>
-1552,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*> <*>
+1552,Mon Dec 05 11:06:52 2005,error,mod_jk child init 1 -2,E6,mod_jk child init <*>
 1553,Mon Dec 05 12:35:57 2005,notice,jk2_init() Found child 5785 in scoreboard slot 6,E1,jk2_init() Found child <*> in scoreboard slot <*>
 1554,Mon Dec 05 12:35:57 2005,notice,jk2_init() Found child 5786 in scoreboard slot 7,E1,jk2_init() Found child <*> in scoreboard slot <*>
 1555,Mon Dec 05 12:36:36 2005,notice,jk2_init() Found child 5790 in scoreboard slot 7,E1,jk2_init() Found child <*> in scoreboard slot <*>

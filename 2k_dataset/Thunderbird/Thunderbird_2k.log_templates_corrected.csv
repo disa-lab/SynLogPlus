@@ -9,12 +9,12 @@ E7,[ib_sm_sweep.c:<*>]: No configuration change required
 E8,[ib_sm_sweep.c:<*>]: ********************** NEW SWEEP ********************
 E9,<*> (Release Date: <*> <*>)
 E10,<*> (v001 DELL PE BKC <*> MSFT <*>) @ <*>
-E11,<*> <*> <*>/<*>/<*> <*>:<*>:<*> ak Exp $
+E11,<*> <*> <*> ak Exp $
 E12,"<*> AUX port at <*>,<*> irq <*>"
 E13,"<*> KBD port at <*>,<*> irq <*>"
-E14,<*>-ioctl (<*>) initialised: #<*>#@#<*>#
-E15,"<*>: from=<*>, size=<*>, class=<*>, nrcpts=<*>, msgid=<*>, relay=#<*>#@localhost"
-E16,"<*>: to=<*>, ctladdr=<*> (0/0), delay=<*>:<*>:<*>, xdelay=<*>:<*>:<*>, mailer=relay, pri=<*>, relay=[<*>] [<*>], dsn=<*>, stat=Deferred: Connection refused by [<*>]"
+E14,<*>-ioctl (<*>) initialised: <*>
+E15,"<*>: from=<*>, size=<*>, class=<*>, nrcpts=<*>, msgid=<*>, relay=<*>@localhost"
+E16,"<*>: to=<*>, ctladdr=<*> (0/0), delay=<*>, xdelay=<*>, mailer=relay, pri=<*>, relay=[<*>] [<*>], dsn=<*>, stat=Deferred: Connection refused by [<*>]"
 E17,allocating divert_blk for <*>
 E18,"apic_id <*>, version <*>, address <*>, GSI <*>"
 E19,asking for cache data failed
@@ -27,7 +27,7 @@ E25,CentOS-<*> (Kernel Module GPG key)
 E26,Changing permissions on special file <*>
 E27,colour VGA+ <*>
 E28,Compressed image found at block <*>
-E29,"connection from ""#<*>#"""
+E29,"connection from <*>
 E30,connection lost: 'Connection closed.'
 E31,Creating Topspin <*> entries:
 E32,data_thread() got not answer from any [<*>] datasource
@@ -76,7 +76,7 @@ E74,Mounting other filesystems: failed
 E75,My unqualified host name (<*>) unknown; sleeping for retry
 E76,no floppy controllers found
 E77,not allocating divert_blk for non-ethernet device <*>
-E78,Now running on #<*>#'s privileges.
+E78,Now running on <*>'s privileges.
 E79,passed.
 E80,PCI Hot Plug PCI Core version: <*>
 E81,"PCI interrupt <*> -> GSI <*> (level, low) -> IRQ <*>"
@@ -84,19 +84,19 @@ E82,PCI Interrupt Link [<*>] (IRQs <*> <*> <*> <*> <*> <*> <*> <*>) <*>
 E83,PCI Interrupt Link [<*>] (IRQs <*> <*> <*> <*> <*> <*> <*> <*>)
 E84,"PCI Interrupt Link [<*>] (IRQs <*> <*> <*> <*> <*> <*> <*> <*>) <*>, disabled."
 E85,PCI Interrupt Routing Table [<*>]
-E86,PCI <*> Bridge [PCI0] (<*>:<*>)
+E86,PCI <*> Bridge [PCI0] (<*>)
 E87,PE/PV Model: <*> SCSI BP Rev: <*>
 E88,Physical Processor ID: <*>
 E89,portmap startup succeeded
 E90,Power Button (FF) [PWRF]
-E91,probe new device <*>:<*>:<*>:<*>: bus <*>:slot <*>:func <*>
+E91,probe new device <*>: bus <*>:slot <*>:func <*>
 E92,probe of vesafb0 failed with error <*>
 E93,Probing PCI hardware (bus <*>)
 E94,Processor [<*>] (supports C1)
 E95,Processor ANSI SCSI revision: <*>
 E96,PS/<*> mouse device common for all mice
 E97,Reading included configuration file: <*> [file=<*>] [line=<*>]
-E98,Received SNMP packet(s) from #<*>#
+E98,Received SNMP packet(s) from <*>
 E99,registered new driver hiddev
 E100,registered new driver hub
 E101,registered new driver usbfs

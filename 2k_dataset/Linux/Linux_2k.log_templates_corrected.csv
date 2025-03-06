@@ -11,13 +11,11 @@ E9,"ANONYMOUS FTP LOGIN FROM <*>, (anonymous)"
 E10,apm: BIOS version <*> Flags <*> (Driver version <*>)
 E11,audit(<*>:<*>): initialized
 E12,audit: initializing netlink socket (disabled)
-E13,Authentication failed from <*> (<*>): Permission denied in replay cache code
-E14,Authentication failed from <*> (<*>): Software caused connection abort
+E13,Authentication failed from <*> <*>: Permission denied in replay cache code
+E14,Authentication failed from <*> <*>: Software caused connection abort
 E15,authentication failure; logname= uid=<*> euid=<*> tty=:<*> ruser= rhost=
 E16,authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*>
-E17,authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*> user=guest
 E18,authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*> user=<*>
-E19,authentication failure; logname= uid=<*> euid=<*> tty=NODEVssh ruser= rhost=<*> user=test
 E20,BIOS-e820: <*> - <*> (reserved)
 E21,BIOS-e820: <*> - <*> (usable)
 E22,BIOS-provided physical RAM map:
@@ -27,7 +25,7 @@ E25,Calibrating delay loop... <*> BogoMIPS
 E26,Capability LSM initialized
 E27,check pass; user unknown
 E28,Checking 'hlt' instruction... OK.
-E29,connection from <*> (<*>) at <*>:<*>:<*>
+E29,connection from <*> <*> at <*>:<*>:<*>
 E30,Console: colour VGA+ <*>
 E31,Couldn't authenticate user
 E32,"CPU <*> irqstacks, hard=<*> soft=<*>"
