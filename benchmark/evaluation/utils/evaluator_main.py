@@ -97,6 +97,7 @@ def evaluator(
     else:
         parse_time = -1
     print("parsing time: ", parse_time)
+    return
 
     # if not os.path.exists(parsedresult):
     #     with open(parsedresult, 'w') as fw:

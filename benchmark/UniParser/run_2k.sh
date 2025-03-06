@@ -1,17 +1,20 @@
-#!/usr/bin/zsh
-source ~/.zshrc
+#!/usr/bin/env bash
+# source ~/.zshrc
 
-export CUDA_VISIBLE_DEVICES=1
-conda activate UniParser
-unset LD_LIBRARY_PATH
-python process_log_parsing_input_to_ner.py
-python TrainNERLogAll.py
-python InferNERLogAll.py
-conda deactivate
+param="-orig"
+param="-full"
 
-cd ../evaluation/
-conda activate logevaluate
-python UniParser_eval.py -otc
+export CUDA_VISIBLE_DEVICES=3
+# conda activate UniParser
+# unset LD_LIBRARY_PATH
+python process_log_parsing_input_to_ner.py ${param}
+python TrainNERLogAll.py ${param}
+python InferNERLogAll.py ${param}
+# conda deactivate
 
-cd ../../UniParser
-conda deactivate
+# cd ../evaluation/
+# # conda activate logevaluate
+# python UniParser_eval.py -otc
+
+# cd ../UniParser
+# # conda deactivate

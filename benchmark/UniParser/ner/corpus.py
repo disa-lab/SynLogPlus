@@ -42,12 +42,12 @@ class Corpus(object):
             # self.wv_model = gensim.models.word2vec.Word2Vec.load(wv_file)
             self.word_vectors = KeyedVectors.load_word2vec_format(wv_file, binary=False)
             self.embedding_dim = self.word_vectors.vector_size
-            word_freq = {word: self.word_vectors.vocab[word].count for word in self.word_vectors.vocab}
+            word_freq = {word: self.word_vectors.get_vecattr(word, "count") for word in self.word_vectors.key_to_index}
             word_counter = Counter(word_freq)
             self.word_field.vocab = Vocab(word_counter, min_freq=min_word_freq)
             vectors = []
             for word, idx in self.word_field.vocab.stoi.items():
-                if word in self.word_vectors.vocab.keys():
+                if word in self.word_vectors.key_to_index.keys():
                     vectors.append(torch.as_tensor(self.word_vectors[word].tolist()))
                 else:
                     vectors.append(torch.zeros(self.embedding_dim))

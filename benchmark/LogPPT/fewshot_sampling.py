@@ -8,8 +8,11 @@ from sklearn.utils import shuffle
 from logppt.sampling import adaptive_random_sampling
 from logppt.utils import log_to_dataframe, benchmark
 
+from transformers import set_seed
+set_seed(42)
 
 datasets = [
+    "Android", 'Windows',
     "Proxifier",
     "Linux",
     "Apache",
@@ -53,10 +56,12 @@ if __name__ == '__main__':
         setting = benchmark[dataset]
         os.makedirs("datasets/{0}".format(dataset), exist_ok=True)
 
-        logdf = log_to_dataframe(f'./logs/{setting["log_file"]}', setting['log_format'])
+        # rawlogdir = './logs'
+        rawlogdir = '../../2k_dataset'
+        logdf = log_to_dataframe(f'{rawlogdir}/{setting["log_file"]}', setting['log_format'])
         logdf.to_csv(f"datasets/{setting['log_file']}_structured.csv")
 
-        labelled_logs = pd.read_csv(f'./logs/{setting["log_file"]}_structured_corrected.csv')
+        labelled_logs = pd.read_csv(f'{rawlogdir}/{setting["log_file"]}_structured_corrected.csv')
         test_samples = [(row['Content'], row['EventTemplate']) for _, row in labelled_logs.iterrows()]
         template_dict = {k: v for (k, v) in test_samples}
         with open("datasets/{0}/test.json".format(dataset), "w") as f:
@@ -67,10 +72,16 @@ if __name__ == '__main__':
         content = [x for x in content if len(x[0].split()) > 1]
         content = shuffle(content)
 
-        for shot in [32]:
+        for shot in [32,100]:
             keywords_list = []
             os.makedirs("datasets/{0}/{1}shot".format(dataset, shot), exist_ok=True)
-            samples_ids = adaptive_random_sampling(shuffle(content), shot)
+            if shot == 100:
+                samples_ids = list(range(100))
+            else:
+                samples_ids = adaptive_random_sampling(shuffle(content), shot)
+
+            with open("datasets/{0}/{1}shot/0.csv".format(dataset, shot), "w") as f:
+                f.write( ",".join(map(str,samples_ids)) )
 
             labeled_samples = [(row['Content'], template_dict[row['Content']]) for _, row in logdf.take(samples_ids).iterrows()]
             labeled_samples = [{"text": x[0], "label": x[1], "type": 1} for x in labeled_samples]

@@ -4,6 +4,16 @@ from logppt.utils.label_search import *
 from logppt.utils.header_processing import log_to_dataframe
 
 benchmark = {
+
+    'Android': {
+        'log_file': 'Android/Android_2k.log',
+        'log_format': '<Date> <Time>  <Pid>  <Tid> <Level> <Component>: <Content>',
+    },
+    'Windows': {
+        'log_file': 'Windows/Windows_2k.log',
+        'log_format': '<Date> <Time>, <Level>                  <Component>    <Content>',
+    },
+
     'HDFS': {
         'log_file': 'HDFS/HDFS_2k.log',
         'log_format': '<Date> <Time> <Pid> <Level> <Component>: <Content>',

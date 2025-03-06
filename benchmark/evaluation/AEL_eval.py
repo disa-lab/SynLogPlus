@@ -39,23 +39,7 @@ datasets_2k = [
     "Thunderbird",
     "BGL",
     "HDFS",
-]
-
-datasets_2k = [
-    "Proxifier",
-    "Linux",
-    "Apache",
-    "Zookeeper",
-    "Hadoop",
-    "HealthApp",
-    "OpenStack",
-    "HPC",
-    "Mac",
-    "OpenSSH",
-    "Spark",
-    "Thunderbird",
-    "BGL",
-    "HDFS",
+    "Android","Windows",
 ]
 
 datasets_full = [
@@ -70,9 +54,9 @@ datasets_full = [
     "Mac",
     "OpenSSH",
     # "Spark",
-    "Thunderbird",
-    "BGL",
-    "HDFS",
+    # "Thunderbird",
+    # "BGL",
+    # "HDFS",
 ]
 
 

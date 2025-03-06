@@ -1,3 +1,5 @@
+import os
+import random
 import logging
 import math
 
@@ -267,5 +269,5 @@ if __name__ == '__main__':
         num_warmup_steps=train_args.num_warmup_steps,
         num_training_steps=train_args.max_train_steps,
     )
-    metric = load_metric("logppt/evaluation/seqeval_metric.py")
+    metric = load_metric("logppt/evaluation/seqeval_metric.py",trust_remote_code=True)
     train()

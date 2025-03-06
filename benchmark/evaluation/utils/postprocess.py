@@ -15,5 +15,6 @@ def post_average(metric_file, tech, complex, frequent):
         output_path = f"../../result/frequent/{tech}.csv"
     df.to_csv(output_path, index=False)
     df = pd.read_csv(output_path)
-    transposed_df = df.transpose()
+    df.set_index(df.columns[0],inplace=True)
+    transposed_df = df #.transpose()
     transposed_df.to_csv(output_path)

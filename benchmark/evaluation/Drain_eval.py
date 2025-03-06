@@ -40,6 +40,7 @@ datasets_2k = [
     "Thunderbird",
     "BGL",
     "HDFS",
+    "Android","Windows",
 ]
 
 datasets_full = [
@@ -53,10 +54,10 @@ datasets_full = [
     "HPC",
     "Mac",
     "OpenSSH",
-    "Spark",
-    "Thunderbird",
-    "BGL",
-    "HDFS",
+    # "Spark",
+    # "Thunderbird",
+    # "BGL",
+    # "HDFS",
 ]
 
 
@@ -79,6 +80,7 @@ if __name__ == "__main__":
         datasets = datasets_full
     else:
         datasets = datasets_2k
+    # datasets = ['Linux']
     for dataset in datasets:
         setting = benchmark_settings[dataset]
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")

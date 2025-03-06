@@ -112,7 +112,7 @@ benchmark_settings = {
         'log_format': '\[<Time>\] <Program> - <Content>',
         'regex': [r'<\d+\s?sec', r'([\w-]+\.)+[\w-]+(:\d+)?', r'\d{2}:\d{2}(:\d{2})*', r'[KGTM]B'],
         'minEventCount': 2,
-        'merge_percent' : 0.4
+        'merge_percent' : 0.5
         },
 
     'OpenSSH': {

@@ -39,6 +39,7 @@ datasets_2k = [
     "Thunderbird",
     "BGL",
     "HDFS",
+    "Android","Windows",
 ]
 
 datasets_full = [
@@ -52,10 +53,10 @@ datasets_full = [
     "HPC",
     "Mac",
     "OpenSSH",
-    "Spark",
-    "Thunderbird",
-    "BGL",
-    "HDFS",
+    # "Spark",
+    # "Thunderbird",
+    # "BGL",
+    # "HDFS",
 ]
 
 

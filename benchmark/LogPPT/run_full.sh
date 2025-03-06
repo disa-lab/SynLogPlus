@@ -1,15 +1,15 @@
 #!/usr/bin/zsh
-source ~/.zshrc
+# source ~/.zshrc
 
-conda activate LogPPT
+# conda activate LogPPT
 python fewshot_sampling.py
 python convert_fewshot_label.py
 ./train_full.sh
-conda deactivate
+# conda deactivate
 
 cd ../evaluation/
-conda activate logevaluate
+# conda activate logevaluate
 ./LogPPT_RQ3.sh
-conda deactivate
+# conda deactivate
 
 cd ../LogPPT

@@ -48,7 +48,7 @@ def evaluate_template_level(dataset, df_groundtruth, df_parsedresult, filter_tem
     df_combined = pd.concat([series_groundtruth, series_parsedlog], axis=1, keys=['groundtruth', 'parsedlog'])
     grouped_df = df_combined.groupby('parsedlog')
     
-    for identified_template, group in tqdm(grouped_df):
+    for identified_template, group in grouped_df:
     # for identified_template in tqdm(series_parsedlog_valuecounts.index):
         # Get the log_message_ids corresponding to the identified template from the tool-generated structured file
         # log_message_ids = parsedresult_df.loc[parsedresult_df['EventTemplate'] == identified_template, 'LineId']

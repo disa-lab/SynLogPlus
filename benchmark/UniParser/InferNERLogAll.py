@@ -12,28 +12,28 @@ import csv
 import argparse
 import time
 
+from transformers import set_seed
+
 def csv_reader(path):
     with open(path, 'r', encoding='utf-8') as fp:
         reader = csv.reader(fp)
         data = [i for i in reader]
     return data
 def csv_writer(path, header, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w', encoding='utf-8_sig', newline="") as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(header)
         writer.writerows(data)
-def set_seed(seed=42):
-    os.environ['PYHTONHASHSEED'] = str(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-
 
 if __name__ == "__main__":
     # os.environ["CUDA_VISIBLE_DEVICES"] = "2"
     config = argparse.ArgumentParser()
     config.add_argument('-full', '--full_data',
                         help="Set this if you want to test on full dataset",
+                        default=False, action='store_true')
+    config.add_argument('-orig', '--original',
+                        help="Set this if you want to run the original framework",
                         default=False, action='store_true')
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
@@ -43,6 +43,8 @@ if __name__ == "__main__":
     # use_device = torch.device("cuda")
     datasets = ['Apache', 'BGL', 'HDFS', 'HPC', 'Hadoop', 'HealthApp', 'Linux', 'Mac', 'OpenSSH', 'OpenStack',
              'Proxifier', 'Spark', 'Thunderbird', 'Zookeeper']
+    if data_type == '2k':
+        datasets += ['Android','Windows']
 
     for dataset in datasets:
         training_config = {
@@ -53,7 +55,10 @@ if __name__ == "__main__":
             "weight_decay": 1e-2
 
         }
-        input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
+        if config.original:
+            input_folder = os.path.join(f"{data_type}_annotations-orig", dataset, "Loghub-2.0_bin_random")
+        else:
+            input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
         corpus = Corpus(
             input_folder=input_folder,
             min_word_freq=3,
@@ -121,7 +126,8 @@ if __name__ == "__main__":
 
         for model_name in configs:
             # TODO: update the model path during inference
-            checkpoint_path = f"saved_states_{data_type}/{dataset}/bilstm+w2v+cnn-w50c37f4k3-lstm64L2-lr0.1-epoch100bz16.pt"
+            savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
+            checkpoint_path = f"{savepath}/{dataset}/bilstm+w2v+cnn-w50c37f4k3-lstm64L2-lr0.1-epoch100bz16.pt"
             # checkpoint_path = f"_{data_type}/{dataset}/{model_name}-" \
             #                   f"w{configs[model_name]['word_emb_dim']}c{configs[model_name]['char_emb_dim']}f{configs[model_name]['char_cnn_filter_num']}k{configs[model_name]['char_cnn_kernel_size']}-" \
             #                   f"lstm{configs[model_name]['lstm_hidden_dim']}L{configs[model_name]['lstm_layers']}-" \
@@ -143,7 +149,7 @@ if __name__ == "__main__":
             begin_time = time.time()
             infer_config = {
                 "infering_data_dir": f"../../{data_type}_dataset",
-                "output_dir": f"../../result/result_UniParser_{data_type}",
+                "output_dir": f"../../result/result_UniParser-orig_{data_type}" if config.original else f"../../result/result_UniParser_{data_type}",
                 "batch_size": 8
             }
             # if not os.path.exists(f"{infer_config['output_dir']}/{dataset}"):

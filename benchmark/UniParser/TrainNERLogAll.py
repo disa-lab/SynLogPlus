@@ -1,4 +1,5 @@
 import torch
+from transformers import set_seed
 from torch.optim import Adam
 from ner.corpus import Corpus
 from ner.models import NERModel
@@ -6,6 +7,7 @@ from ner.lr_finder import LRFinder
 from ner.trainer import Trainer
 from pprint import pprint
 import os
+import random
 import argparse
 import csv
 import sys
@@ -45,17 +47,13 @@ def write_experiment_results(outfile, result_dict):
             fcntl.flock(csvfile.fileno(), fcntl.LOCK_UN)
 
 
-def set_seed(seed=42):
-    os.environ['PYHTONHASHSEED'] = str(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.backends.cudnn.deterministic = True
-
-
 if __name__ == "__main__":
     config = argparse.ArgumentParser()
     config.add_argument('-full', '--full_data',
                         help="Set this if you want to test on full dataset",
+                        default=False, action='store_true')
+    config.add_argument('-orig', '--original',
+                        help="Set this if you want to run the original framework",
                         default=False, action='store_true')
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
@@ -65,18 +63,26 @@ if __name__ == "__main__":
     use_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     files = ['Apache', 'BGL', 'HDFS', 'HPC', 'Hadoop', 'HealthApp', 'Linux', 'Mac', 'OpenSSH', 'OpenStack',
              'Proxifier', 'Spark', 'Thunderbird', 'Zookeeper']
+    if data_type == '2k':
+        files += ['Android','Windows']
+
+    if data_type == 'full':
+        files = [file for file in files if file not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
 
     all_results = {}
     for log_file in files:
         training_config = {
-            "max_epochs": 100,
+            "max_epochs": 1000,
             "no_improvement": 10,
             "batch_size": 16,
             "lr": 1e-1,
             "weight_decay": 1e-2
 
         }
-        input_folder = os.path.join(f"{data_type}_annotations", log_file, "Loghub-2.0_bin_random")
+        if config.original:
+            input_folder = os.path.join(f"{data_type}_annotations-orig", log_file, "Loghub-2.0_bin_random")
+        else:
+            input_folder = os.path.join(f"{data_type}_annotations", log_file, "Loghub-2.0_bin_random")
         corpus = Corpus(
             input_folder=input_folder,
             min_word_freq=3,
@@ -144,9 +150,10 @@ if __name__ == "__main__":
 
         histories = {}
         for model_name in configs:
-            if not os.path.exists(f"saved_states_{data_type}/{log_file}"):
-                os.makedirs(f"saved_states_{data_type}/{log_file}")
-            checkpoint_path = f"saved_states_{data_type}/{log_file}/{model_name}-" \
+            savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
+            if not os.path.exists(f"{savepath}/{log_file}"):
+                os.makedirs(f"{savepath}/{log_file}")
+            checkpoint_path = f"{savepath}/{log_file}/{model_name}-" \
                               f"w{configs[model_name]['word_emb_dim']}c{configs[model_name]['char_emb_dim']}f{configs[model_name]['char_cnn_filter_num']}k{configs[model_name]['char_cnn_kernel_size']}-" \
                               f"lstm{configs[model_name]['lstm_hidden_dim']}L{configs[model_name]['lstm_layers']}-" \
                               f"lr{suggested_lrs[model_name]}-epoch{training_config['max_epochs']}bz{training_config['batch_size']}.pt"

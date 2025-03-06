@@ -103,7 +103,7 @@ def common_args():
     parser.add_argument('--example_size', type=int,
                         help="Set this if you want to test on frequent dataset",
                         default=0)    
-    args = parser.parse_args()
+    args,_ = parser.parse_known_args()
     return args
 
 
