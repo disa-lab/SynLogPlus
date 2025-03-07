@@ -55,24 +55,25 @@ if __name__ == "__main__":
     config.add_argument('-orig', '--original',
                         help="Set this if you want to run the original framework",
                         default=False, action='store_true')
+    config.add_argument('-epoch', '--max_epochs', type=int, default=1000)
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
     # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
     find_lr = False
     set_seed(42)
     use_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    files = ['Apache', 'BGL', 'HDFS', 'HPC', 'Hadoop', 'HealthApp', 'Linux', 'Mac', 'OpenSSH', 'OpenStack',
+    datasets = ['Apache', 'BGL', 'HDFS', 'HPC', 'Hadoop', 'HealthApp', 'Linux', 'Mac', 'OpenSSH', 'OpenStack',
              'Proxifier', 'Spark', 'Thunderbird', 'Zookeeper']
     if data_type == '2k':
-        files += ['Android','Windows']
+        datasets += ['Android','Windows']
 
     if data_type == 'full':
-        files = [file for file in files if file not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
+        datasets = [dataset for dataset in datasets if dataset not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
 
     all_results = {}
-    for log_file in files:
+    for dataset in datasets:
         training_config = {
-            "max_epochs": 1000,
+            "max_epochs": config.max_epochs,
             "no_improvement": 10,
             "batch_size": 16,
             "lr": 1e-1,
@@ -80,9 +81,9 @@ if __name__ == "__main__":
 
         }
         if config.original:
-            input_folder = os.path.join(f"{data_type}_annotations-orig", log_file, "Loghub-2.0_bin_random")
+            input_folder = os.path.join(f"{data_type}_annotations-orig", dataset, "Loghub-2.0_bin_random")
         else:
-            input_folder = os.path.join(f"{data_type}_annotations", log_file, "Loghub-2.0_bin_random")
+            input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
         corpus = Corpus(
             input_folder=input_folder,
             min_word_freq=3,
@@ -151,9 +152,9 @@ if __name__ == "__main__":
         histories = {}
         for model_name in configs:
             savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
-            if not os.path.exists(f"{savepath}/{log_file}"):
-                os.makedirs(f"{savepath}/{log_file}")
-            checkpoint_path = f"{savepath}/{log_file}/{model_name}-" \
+            if not os.path.exists(f"{savepath}/{dataset}"):
+                os.makedirs(f"{savepath}/{dataset}")
+            checkpoint_path = f"{savepath}/{dataset}/{model_name}-" \
                               f"w{configs[model_name]['word_emb_dim']}c{configs[model_name]['char_emb_dim']}f{configs[model_name]['char_cnn_filter_num']}k{configs[model_name]['char_cnn_kernel_size']}-" \
                               f"lstm{configs[model_name]['lstm_hidden_dim']}L{configs[model_name]['lstm_layers']}-" \
                               f"lr{suggested_lrs[model_name]}-epoch{training_config['max_epochs']}bz{training_config['batch_size']}.pt"
@@ -178,7 +179,7 @@ if __name__ == "__main__":
             # words, infer_tags, unknown_tokens = trainer.infer(sentence=sentence)
         pprint(histories)
         print("==============================")
-        print(f"Dataset: {log_file}")
+        print(f"Dataset: {dataset}")
         print(f"Num Param: {histories['bilstm+w2v+cnn']['num_params']}")
         # print(f"Best Val F1 {round(histories['bilstm+w2v+cnn']['best_val_f1']*100, 2)}")
         # print(f"Best Test F1 {round(histories['bilstm+w2v+cnn']['test_f1']*100, 2)}")
@@ -186,11 +187,11 @@ if __name__ == "__main__":
         print(f"Best Test EM {round(histories['bilstm+w2v+cnn']['test_em']*100, 2)}")
         print(f"Model saved to: {checkpoint_path}")
         print("==============================")
-        all_results[log_file] = round(histories['bilstm+w2v+cnn']['test_f1']*100, 2)
+        all_results[dataset] = round(histories['bilstm+w2v+cnn']['test_f1']*100, 2)
 
         write_csv = configs["bilstm+w2v+cnn"].copy()
         write_csv.update(training_config)
-        write_csv.update({"Dataset": log_file, "TestEM": round(histories['bilstm+w2v+cnn']['test_em']*100, 2)})
+        write_csv.update({"Dataset": dataset, "TestEM": round(histories['bilstm+w2v+cnn']['test_em']*100, 2)})
         write_csv.pop("word_emb_pretrained")
         write_experiment_results(f'summary_results_bilstm+w2v+cnn_{data_type}.csv', write_csv)
 

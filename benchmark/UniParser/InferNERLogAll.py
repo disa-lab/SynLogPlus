@@ -35,6 +35,10 @@ if __name__ == "__main__":
     config.add_argument('-orig', '--original',
                         help="Set this if you want to run the original framework",
                         default=False, action='store_true')
+    config.add_argument('-orig', '--original',
+                        help="Set this if you want to run the original framework",
+                        default=False, action='store_true')
+    config.add_argument('-epoch', '--max_epochs', type=int, default=1000)
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
     find_lr = False
@@ -45,6 +49,9 @@ if __name__ == "__main__":
              'Proxifier', 'Spark', 'Thunderbird', 'Zookeeper']
     if data_type == '2k':
         datasets += ['Android','Windows']
+
+    if data_type == 'full':
+        datasets = [dataset for dataset in datasets if dataset not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
 
     for dataset in datasets:
         training_config = {
@@ -127,7 +134,7 @@ if __name__ == "__main__":
         for model_name in configs:
             # TODO: update the model path during inference
             savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
-            checkpoint_path = f"{savepath}/{dataset}/bilstm+w2v+cnn-w50c37f4k3-lstm64L2-lr0.1-epoch100bz16.pt"
+            checkpoint_path = f"{savepath}/{dataset}/bilstm+w2v+cnn-w50c37f4k3-lstm64L2-lr0.1-epoch{config.max_epochs}bz16.pt"
             # checkpoint_path = f"_{data_type}/{dataset}/{model_name}-" \
             #                   f"w{configs[model_name]['word_emb_dim']}c{configs[model_name]['char_emb_dim']}f{configs[model_name]['char_cnn_filter_num']}k{configs[model_name]['char_cnn_kernel_size']}-" \
             #                   f"lstm{configs[model_name]['lstm_hidden_dim']}L{configs[model_name]['lstm_layers']}-" \
@@ -144,6 +151,7 @@ if __name__ == "__main__":
             if os.path.exists(checkpoint_path):
                 trainer.model.load_state(checkpoint_path)
             else:
+                print(checkpoint_path)
                 print("No checkpoint found. Use model's last state for inference.")
 
             begin_time = time.time()
