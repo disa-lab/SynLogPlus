@@ -305,6 +305,8 @@ def mark_as_vars_with_common_patterns(msg):
     patterns = [
         r'((?<=^)|(?<=\W))([A-Fa-f0-9]{2}:){5,11}[A-Fa-f0-9]{2}(?=(\W|$))',
         r'((?<=^)|(?<=\W))(\d{1,4}(-|/)\d{1,2}(-|/)\d{1,4})(?=(\W|$))',
+        # Sat Jun 11 03:28:22 2005
+        r'((?<=^)|(?<=\W))((Sat|Sun|Mon|Tue|Wed|Thu|Fri)\s)?((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s)(\d{,2}\s?)((\d{2}\:){2}\d{2}\s?)?(\d{4})?(?=(\W|$))',
         r'((?<=^)|(?<=\W))\d{4}(-)\d{4}(?=(\W|$))',
         r'((?<=^)|(?<=\W))[0-9a-zA-Z]+@([0-9a-zA-Z]+\.)+[0-9a-zA-Z]+(?=(\W|$))',
         r'((?<=^)|(?<=\W))\/?(?:[-0-9a-zA-Z]+\.){2,}[-0-9a-zA-Z]+(?::?:\d+)?(?=(\W|$))',
@@ -463,7 +465,7 @@ def update_templates(log_groups, log_messages):
 
     for template,group_member_indices in tqdm(log_groups.items(),total=len(log_groups.keys())):
         pflag = False
-        # if 1910 in group_member_indices:
+        # if 2814 in group_member_indices:
         #     pflag = True
         msgs = [
             list(filter(None, _helper(log_messages[iii], pflag)))
