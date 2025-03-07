@@ -42,7 +42,7 @@ def is_pure_number(s):
     return False
 
 def is_number(s):
-    if is_pure_number(s):
+    if is_pure_number(s) or all([ is_pure_number(_s) for _s in re.split(r'[\/]',s) ]):
         return True
     n_digits = 0
     n_alphas = 0
@@ -309,10 +309,13 @@ def mark_as_vars_with_common_patterns(msg):
         r'((?<=^)|(?<=\W))[0-9a-zA-Z]+@([0-9a-zA-Z]+\.)+[0-9a-zA-Z]+(?=(\W|$))',
         r'((?<=^)|(?<=\W))\/?(?:[-0-9a-zA-Z]+\.){2,}[-0-9a-zA-Z]+(?::?:\d+)?(?=(\W|$))',
         r'((?<=^)|(?<=\W))[+-]?(\d+s(\d+\s?ms)?|\d+\s?ms)(?=(\W|$))',
-        r'((?<=^)|(?<=\W))(\d+(\.\d+)?)\s?[kmgKMG][bB]?((\/s)|(ytes))?(?=(\W|$))',
+        r'((?<=^)|(?<=\W))(\d+(\.\d+)?)\s?[kmgKMG]i?[bB]?((\/s)|(ytes))?(?=(\W|$))',
+        r'((?<=^)|(?<=\W))(\d+(\.\d+)?)[KMG]Hz(?=(\W|$))',
         r'((?<=^)|(?<=\W))(\d+(\.\d+))k(?=(\W|$))',
         r'((?<=^)|(?<=\W))(\/[\d+\w+\-_\.\#\$]*[\/\.][\d+\w+\-_\.\#\$\/*]*)+(\sHTTPS?\/\d\.\d)?(?=(\W|$))',
         r'((?<=^)|(?<=\W))([a-zA-Z]\:[\/\\][\d+\w+\-_\.\#\$]*([\/\\\.][\d+\w+\-_\.\#\$\\\/*]*)?)(?=(\W|$))',
+        # r'(?<=\w\=)[^ "]+',
+        # r'(?<=(\="))[^"]+',
     ]
 
     for pat in patterns:
@@ -358,12 +361,15 @@ def update_templates(log_groups, log_messages):
         return new_template
 
     def subvars(template):
-        template = re.sub(r'\w+_<\*>', "<*>", template)
-        template = re.sub(r'<\*>_\w+', "<*>", template)
-        template = re.sub(r'(<\*>[ @:$_/]?)+<\*>', "<*>", template)
-        template = re.sub(r'(<\*>, ?)+<\*>', "<*>", template)
-        template = re.sub(r'(@<\*> )+@<\*>', "@<*>", template)
-        template = re.sub(r'(<\*>##)+<\*>', "<*>", template)
+        for _ in range(3):
+            template = re.sub(r'\w+_<\*>', "<*>", template)
+            template = re.sub(r'<\*>_\w+', "<*>", template)
+            template = re.sub(r'<\*>\%(\W)', "<*>\\1", template)
+            template = re.sub(r'(<\*>[ @:$_/]?)+<\*>', "<*>", template)
+            template = re.sub(r'(<\*>, ?)+<\*>', "<*>", template)
+            template = re.sub(r'(<\*>\+)+<\*>', "<*>", template)
+            template = re.sub(r'(@<\*> )+@<\*>', "@<*>", template)
+            template = re.sub(r'(<\*>#+)+<\*>', "<*>", template)
         return template
 
     def get_template_from_msgs(msg1,msg2,templ,flag=False, pflag=False):
@@ -445,8 +451,15 @@ def update_templates(log_groups, log_messages):
         msg = mark_as_vars_with_common_patterns(msg)
         if pflag:
             print("h", msg)
-        msgsplit = re.split(r'(\.{5,}|[\s,;!@#$%^&(){}\[\]=_:"])', msg)
-        return msgsplit
+        msgsplit = re.split(r'(\.$|\.{5,}|[\s,;!@#$%^&(){}\[\]=_:"\+])', msg)
+        new_msgsplit = []
+        for split in msgsplit:
+            if len(split) > 1 and split[-1] == '.':
+                new_msgsplit.append(split[:-1])
+                new_msgsplit.append(split[-1])
+            else:
+                new_msgsplit.append(split)
+        return new_msgsplit
 
     for template,group_member_indices in tqdm(log_groups.items(),total=len(log_groups.keys())):
         pflag = False
