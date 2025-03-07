@@ -1,3 +1,4 @@
+import csv
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
@@ -53,19 +54,25 @@ if __name__ == "__main__":
     print(f"Project root: {rootdir}")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dirpath", type=str, default=None)
-    parser.add_argument("--use_full", action="store_true")
-    parser.add_argument("--pathformat", type=str, default="{}/predictions.csv")
+    parser.add_argument("-d", "--dirpath", type=str, default=None)
+    parser.add_argument("-full", "--use_full", action="store_true")
+    parser.add_argument("-p", "--pathformat", type=str, default="{}_{}.log_structured.csv")
     parser.add_argument(
         "--datasets",
         type=str,
         default="Android,Apache,BGL,HDFS,HPC,Hadoop,HealthApp,Linux,Mac,OpenSSH,OpenStack,Proxifier,Spark,Thunderbird,Windows,Zookeeper"
         # default="Android,Apache,HPC,Hadoop,HealthApp,Linux,Mac,OpenSSH,OpenStack,Proxifier,Windows,Zookeeper"
     )
+    parser.add_argument(
+        "-x", "--exclude_training_samples", action="store_true"
+    )
+    parser.add_argument(
+        "-ts", "--training_samples_file", type=str, default=None
+    )
     args = parser.parse_args()
-    data_type = 'full' if args.use_full else '2k'
 
     dirpath = Path(args.dirpath)
+    data_type = 'full' if args.use_full else '2k'
 
     GA_list = []
     PA_list = []
@@ -80,30 +87,59 @@ if __name__ == "__main__":
     accuracies = {}
     tasks = []
     q = mp.Queue()
+    flag = False
     for dataset in datasets:
-        if args.use_full and dataset in [
-                'Android', 'Windows', 'BGL', 'HDFS', 'Spark', 'Thunderbird'
-        ]: continue
-        print(dataset)
+        # if dataset != 'Apache': continue
+        if args.use_full and dataset in [ 'Android','Windows', 'BGL','Thunderbird' ]: continue
+        if flag: print(dataset)
 
-        dataset_dir = Path(__file__).absolute().parent.parent / '{}_dataset'.format(data_type)
-        predic_file = dirpath / args.pathformat.format(dataset)
-        ground_file = dataset_dir / dataset / '{}_2k.log_structured_corrected.csv'.format(dataset)
-        ground_file = ground_file if not args.use_full else ground_file.parent / '{}_full.log_structured.csv'.format(dataset)
+        dataset_dir = Path('/local/home/enan/projects/loghub-2.0')
+        dataset_dir /= "{}_dataset".format(data_type)
+        predic_file = dirpath / args.pathformat.format(dataset, data_type)
+        result_file = dirpath / args.pathformat.format(dataset,data_type).replace(".csv","_result.csv")
+        ground_file = dataset_dir / dataset / '{}_{}.log_structured{}.csv'.format(dataset, data_type, "" if args.use_full else "_corrected")
 
         # print(dataset_dir)
         # print(predic_file)
+        # print(result_file)
         # print(ground_file)
         # exit()
 
         if not predic_file.is_file():
-            print(f"Predictions for   {dataset}   not found: skipping")
+            if flag: print(f"Predictions for   {dataset}   not found: skipping")
             continue
 
-        df_parsedlog = pd.read_csv(predic_file, index_col=False, header='infer', dtype=str).map(str)
+        df_parsedlog = pd.read_csv(predic_file, index_col=False, header='infer', dtype=str)
         df_groundtruth = pd.read_csv(ground_file)
         series_parsedlog = df_parsedlog['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
         series_groundtruth = df_groundtruth['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
+        series_content = df_groundtruth['Content']
+
+        if args.exclude_training_samples:
+            if args.training_samples_file:
+                with open(args.training_samples_file.format(dataset), newline='') as f:
+                    reader = csv.reader(f)
+                    training_samples_indices = [ int(idx) for idx in list(reader)[0] ]
+                    # print(dataset, len(training_samples_indices))
+                    # exit()
+            else:
+                training_samples_indices = list(range(100))
+            training_samples = series_content[training_samples_indices].tolist()
+            for i,content in enumerate(series_content):
+                if content in training_samples and i not in training_samples_indices:
+                    training_samples_indices.append(i)
+
+            # print(set(list(range(2000))) - set(training_samples_indices))
+            if flag: print(len(series_groundtruth) - len(training_samples_indices))
+            # continue
+
+            series_parsedlog.drop(  training_samples_indices, inplace=True)
+            series_groundtruth.drop(training_samples_indices, inplace=True)
+
+            # series_parsedlog = series_parsedlog.take(  training_samples_indices)
+            # series_groundtruth = series_groundtruth.take(training_samples_indices)
+
+        if flag: print(f"{len(series_groundtruth)}, {len(series_parsedlog)}")
         assert(len(series_groundtruth) == len(series_parsedlog)), f"{len(series_groundtruth)}, {len(series_parsedlog)}"
 
         t = mp.Process(target=get_accuracy, args=(series_groundtruth, series_parsedlog, dataset, q))
@@ -115,8 +151,6 @@ if __name__ == "__main__":
 
     while not q.empty():
         accuracies = accuracies | q.get()
-
-    # print(accuracies)
 
     for project,accuracies in accuracies.items():
         parsed_projects.append(project)
@@ -133,6 +167,7 @@ if __name__ == "__main__":
         "FTA": FTA_list
     })
     df.set_index('Dataset',inplace=True)
+    df.sort_index(inplace=True)
     df.loc['Average'] = df.mean()
     df[df.columns] = df[df.columns].map(lambda x: '{0:.03}'.format(x))
     df.to_csv(Path(dirpath) / 'results.csv')
