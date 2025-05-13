@@ -78,7 +78,6 @@ if __name__ == "__main__":
     else:
         datasets = datasets_2k
     for dataset in datasets:
-        if dataset != 'HPC': continue
         setting = benchmark_settings[dataset]
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")
         indir = os.path.join(input_dir, os.path.dirname(log_file))
