@@ -1,0 +1,252 @@
+[
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Session: 30546174_91672250 initialized by client WindowsUpdateAgent.",
+    "output": "Session: <*> initialized by client WindowsUpdateAgent."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Package_for_KB2716513~31bf3856ad364e35~amd64~~6.1.1.0, ApplicableState: 80, CurrentState:0",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Warning: Unrecognized packageExtended attribute.",
+    "output": "Warning: Unrecognized packageExtended attribute."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Expecting attribute name [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+    "output": "Expecting attribute name [HRESULT = <*> - CBS_E_MANIFEST_INVALID_ITEM]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Failed to get next element [HRESULT = 0x800f080d - CBS_E_MANIFEST_INVALID_ITEM]",
+    "output": "Failed to get next element [HRESULT = <*> - CBS_E_MANIFEST_INVALID_ITEM]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Failed to internally open package. [HRESULT = 0x800f0805 - CBS_E_INVALID_PACKAGE]",
+    "output": "Failed to internally open package. [HRESULT = <*> - CBS_E_INVALID_PACKAGE]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Microsoft-Hyper-V-Integration-Services-Package~31bf3856ad364e35~amd64~~6.3.9600.17903, ApplicableState: 112, CurrentState:0",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Unloading offline registry hive: {bf1a281b-ad7b-4476-ac95-f47682990ce7}GLOBALROOT/Device/HarddiskVolumeShadowCopy2/Windows/System32/config/DEFAULT",
+    "output": "Unloading offline registry hive: <*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000d Creating NT transaction (seq 2), objectname [6]\"(null)\"",
+    "output": "<*> Creating NT transaction (seq <*>), objectname [<*>]\"(<*>)\""
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Loaded Servicing Stack v6.1.7601.23505 with Core: C:\\Windows\\winsxs\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_6.1.7601.23505_none_681aa442f6fed7f0\\cbscore.dll",
+    "output": "Loaded Servicing Stack <*> with Core: <*>.dll"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Ending TrustedInstaller initialization.",
+    "output": "Ending TrustedInstaller initialization."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Starting the TrustedInstaller main loop.",
+    "output": "Starting the TrustedInstaller main loop."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "TrustedInstaller service starts successfully.",
+    "output": "TrustedInstaller service starts successfully."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Initializing online with Windows opt-in: False",
+    "output": "SQM: Initializing online with Windows opt-in: <*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Cleaning up report files older than 10 days.",
+    "output": "SQM: Cleaning up report files older than <*> days."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Requesting upload of all unsent reports.",
+    "output": "SQM: Requesting upload of all unsent reports."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Failed to start upload with file pattern: C:\\Windows\\servicing\\sqm\\*_std.sqm, flags: 0x2 [HRESULT = 0x80004005 - E_FAIL]",
+    "output": "SQM: Failed to start upload with file pattern: <*>, flags: <*> [HRESULT = <*> - E_FAIL]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Failed to start standard sample upload. [HRESULT = 0x80004005 - E_FAIL]",
+    "output": "SQM: Failed to start standard sample upload. [HRESULT = <*> - E_FAIL]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Queued 0 file(s) for upload with pattern: C:\\Windows\\servicing\\sqm\\*_all.sqm, flags: 0x6",
+    "output": "SQM: Queued <*> file(s) for upload with pattern: <*>, flags: <*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "SQM: Warning: Failed to upload all unsent reports. [HRESULT = 0x80004005 - E_FAIL]",
+    "output": "SQM: Warning: Failed to upload all unsent reports. [HRESULT = <*> - E_FAIL]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending.",
+    "output": "No startup processing required, TrustedInstaller service was not set as autostart, or else a reboot is still pending."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "NonStart: Checking to ensure startup processing was not required.",
+    "output": "NonStart: Checking to ensure startup processing was not required."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000006 Created NT transaction (seq 1) result 0x00000000, handle @0x214",
+    "output": "<*> Created NT transaction (seq <*>) result <*>, handle @<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000007@2016/9/28:16:00:46.260 CSI perf trace:",
+    "output": "<*> CSI perf trace:"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "NonStart: Success, startup processing not required as expected.",
+    "output": "NonStart: Success, startup processing not required as expected."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Startup processing thread terminated normally",
+    "output": "Startup processing thread terminated normally"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Microsoft-Windows-PlatformUpdate-Win7-SRV08R2-Package-TopLevel~31bf3856ad364e35~amd64~~7.1.7601.16492, ApplicableState: 112, CurrentState:112",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Microsoft-Windows-RDP-BlueIP-Package-TopLevel~31bf3856ad364e35~amd64~~7.2.7601.16415, ApplicableState: 112, CurrentState:112",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Microsoft-Windows-RDP-WinIP-Package-TopLevel~31bf3856ad364e35~amd64~~7.1.7601.16398, ApplicableState: 112, CurrentState:112",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Microsoft-Windows-Embedded-EmbeddedLockdown-Package-TopLevel~31bf3856ad364e35~amd64~~7.1.7601.16511, ApplicableState: 112, CurrentState:0",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Failed to create backup log cab. [HRESULT = 0x80070001 - ERROR_INVALID_FUNCTION]",
+    "output": "Failed to create backup log cab. [HRESULT = <*> - ERROR_INVALID_FUNCTION]"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Loading offline registry hive: schema.dat, into registry key '{bf1a281b-ad7b-4476-ac95-f47682990ce7}GLOBALROOT/Device/HarddiskVolumeShadowCopy2/Windows/system32/smi/store/Machine/schema.dat' from path '\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy2\\Windows\\system32\\smi\\store\\Machine\\schema.dat'.",
+    "output": "Loading offline registry hive: <*>, into registry key '<*>' from path '<*>'."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000001@2016/9/27:20:30:31.455 WcpInitialize (wcp.dll version 0.0.0.6) called (stack @0x7fed806eb5d @0x7fef9fb9b6d @0x7fef9f8358f @0xff83e97c @0xff83d799 @0xff83db2f)",
+    "output": "<*>@<*>/<*>/<*>:<*>:<*>:<*> WcpInitialize (wcp.dll version <*>) called (stack @<*>)"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000002@2016/9/27:20:30:31.458 WcpInitialize (wcp.dll version 0.0.0.6) called (stack @0x7fed806eb5d @0x7fefa006ade @0x7fef9fd2984 @0x7fef9f83665 @0xff83e97c @0xff83d799)",
+    "output": "<*>@<*>/<*>/<*>:<*>:<*>:<*> WcpInitialize (wcp.dll version <*>) called (stack @<*>)"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000003@2016/9/27:20:30:31.458 WcpInitialize (wcp.dll version 0.0.0.6) called (stack @0x7fed806eb5d @0x7fefa1c8728 @0x7fefa1c8856 @0xff83e474 @0xff83d7de @0xff83db2f)",
+    "output": "<*>@<*>/<*>/<*>:<*>:<*>:<*> WcpInitialize (wcp.dll version <*>) called (stack @<*>)"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000004 IAdvancedInstallerAwareStore_ResolvePendingTransactions (call 1) (flags = 00000004, progress = NULL, phase = 0, pdwDisposition = @0xb6fd90",
+    "output": "<*> IAdvancedInstallerAwareStore_ResolvePendingTransactions (call <*>) (flags = <*>, progress = <*>, phase = <*>, pdwDisposition = @<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000008 CSI Store 4991456 (0x00000000004c29e0) initialized",
+    "output": "<*> CSI Store <*> (<*>) initialized"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Read out cached package applicability for package: Package_for_RollupFix~31bf3856ad364e35~amd64~~7601.23545.1.4, ApplicableState: 112, CurrentState:112",
+    "output": "Read out cached package applicability for package: <*>, ApplicableState: <*>, CurrentState:<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Reboot mark refs incremented to: 1",
+    "output": "Reboot mark refs incremented to: <*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Scavenge: Starts",
+    "output": "Scavenge: Starts"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000009@2016/9/27:20:40:53.744 CSI Transaction @0x47e9e0 initialized for deployment engine {d16d444c-56d8-11d5-882d-0080c847b195} with flags 00000002 and client id [10]\"TI6.0_0:0/\"",
+    "output": "<*>@<*>/<*>/<*>:<*>:<*>:<*> CSI Transaction @<*> initialized for deployment engine {<*>} with flags <*> and client id [<*>]\"<*>/\""
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Scavenge: Begin CSI Store",
+    "output": "Scavenge: Begin CSI Store"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000a Performing 1 operations; 1 are not lock/unlock and follow:",
+    "output": "<*> Performing <*> operations; <*> are not lock/unlock and follow:"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000b Store coherency cookie matches last scavenge cookie, skipping scavenge.",
+    "output": "<*> Store coherency cookie matches last scavenge cookie, skipping scavenge."
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000c ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=FALSE applyflags=7",
+    "output": "<*> ICSITransaction::Commit calling IStorePendingTransaction::Apply - coldpatching=<*> applyflags=<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000e Created NT transaction (seq 2) result 0x00000000, handle @0xb8",
+    "output": "<*> Created NT transaction (seq <*>) result <*>, handle @<*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "0000000f@2016/9/27:20:40:54.786 CSI perf trace:",
+    "output": "<*> CSI perf trace:"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Scavenge: Completed, disposition: 0X1",
+    "output": "Scavenge: Completed, disposition: <*>"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "00000010@2016/9/27:20:40:54.787 CSI Transaction @0x47e9e0 destroyed",
+    "output": "<*>@<*>/<*>/<*>:<*>:<*>:<*> CSI Transaction @<*> destroyed"
+  },
+  {
+    "instruction": "Parse the input log to log template.",
+    "input": "Reboot mark refs: 0",
+    "output": "Reboot mark refs: <*>"
+  }
+]

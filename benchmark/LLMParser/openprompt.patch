@@ -1,0 +1,13 @@
+diff --git a/openprompt/pipeline_base.py b/openprompt/pipeline_base.py
+index a334f996d5f7..449af4fc93b3 100644
+--- a/openprompt/pipeline_base.py
++++ b/openprompt/pipeline_base.py
+@@ -1,7 +1,7 @@
+ from pickle import FALSE
+ from torch.utils.data.sampler import RandomSampler
+ from transformers.configuration_utils import PretrainedConfig
+-from transformers.generation_utils import GenerationMixin
++from transformers.generation.utils import GenerationMixin
+ import torch
+ import torch.nn as nn
+ from torch.utils.data import Dataset
