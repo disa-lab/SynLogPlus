@@ -1,8 +1,10 @@
-#!/usr/bin/zsh
-# source ~/.zshrc
+#!/bin/bash
+
+echo 'Starting LogPPT run'
+echo $(date)
 
 # conda activate LogPPT
-export CUDA_VISIBLE_DEVICES=3
+# export CUDA_VISIBLE_DEVICES=3
 
 python fewshot_sampling.py
 ./train_2k.sh
@@ -12,3 +14,6 @@ python fewshot_sampling.py
 # python LogPPT_eval.py -otc
 
 # cd ../LogPPT
+
+echo 'Ending LogPPT run'
+echo $(date)

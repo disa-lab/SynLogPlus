@@ -97,9 +97,12 @@ def map_template_bert(tokenizer, c, t, m, mode="prompt-tuning"):
 def map_template_roberta(tokenizer, c, t, mode="prompt-tuning"):
     val_token = tokenizer.convert_tokens_to_ids('i-val') if mode == "prompt-tuning" else 1
     tokens = tokenizer.convert_ids_to_tokens(c)
-    # print(tokens)
+    flag = False
+    # if 'Ġ'+'checking' in tokens: flag = True
     res = [" "]
-    # print(t)
+    if flag:
+        print(tokens)
+        print(t)
     for i in range(1, len(c)):
         if c[i] == tokenizer.sep_token_id:
             break
@@ -108,12 +111,17 @@ def map_template_roberta(tokenizer, c, t, mode="prompt-tuning"):
         else:
             if "Ġ" in tokens[i]:
                 if "<*>" not in res[-1]:
-                    # print(tokens[i])
+                    if flag:
+                        print(tokens[i])
                     res.append("Ġ<*>")
             elif "<*>" not in res[-1]:
                 res.append("<*>")
+        if flag:
+            print("res:", res)
     r = "".join(res)
     r = r.replace("Ġ", " ")
+    if flag:
+        print(r)
     return r.strip()
 
 

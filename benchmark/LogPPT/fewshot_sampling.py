@@ -80,11 +80,13 @@ if __name__ == '__main__':
             else:
                 samples_ids = adaptive_random_sampling(shuffle(content), shot)
 
-            with open("datasets/{0}/{1}shot/0.csv".format(dataset, shot), "w") as f:
-                f.write( ",".join(map(str,samples_ids)) )
-
             labeled_samples = [(row['Content'], template_dict[row['Content']]) for _, row in logdf.take(samples_ids).iterrows()]
             labeled_samples = [{"text": x[0], "label": x[1], "type": 1} for x in labeled_samples]
             with open("datasets/{0}/{1}shot/{2}.json".format(dataset, shot, 1), "w") as f:
                 for s in labeled_samples:
                     f.write(json.dumps(s) + "\n")
+
+            labeled_samples = [row['Content'] for _, row in logdf.take(samples_ids).iterrows()]
+            with open("datasets/{0}/{1}shot/2k.csv".format(dataset, shot), "w") as f:
+                f.write( "\n".join(map(str,labeled_samples)) )
+

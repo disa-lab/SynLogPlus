@@ -20,6 +20,7 @@ from transformers import (
 from logppt.models import load_model
 from accelerate import Accelerator
 import copy
+import time
 
 from logppt.utils import MainArguments, ModelArguments, TrainArguments, TaskArguments, find_labels
 from logppt.data import load_data_parsing, load_data_anomaly_detection, CustomDataCollator
@@ -96,9 +97,12 @@ def train():
         tokenizer.save_pretrained(main_args.output_dir)
 
     if task_args.task_name == "log-parsing":
+        begin_time = time.time()
         template_extraction(tokenizer, model, accelerator, task_args.log_file, max_length=main_args.max_length,
                             model_name=model_type, shot=main_args.shot, dataset_name=task_args.dataset_name,
                             o_dir=task_args.task_output_dir, mode=main_args.mode)
+        end_time = time.time()
+        print("Parsing time: {:3f}\n".format(end_time - begin_time))
     else:
         raise ValueError("Please choose the \"log-parsing\" task")
 

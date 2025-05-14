@@ -35,16 +35,17 @@ def modify_prompt(new_prompt, dataset):
 
 
 def process(dataset):
-    new_prompt = []
-    with open (f"datasets/{dataset}/{32}shot/1.json", "r") as fr:
-        lines = fr.readlines()
-        for line in lines:
-            data = json.loads(line)
-            new_prompt.append(data)
-    new_prompt = modify_prompt(new_prompt, dataset)
-    with open (f"datasets/{dataset}/{32}shot/2.json", "w") as fw:
-        for data in new_prompt:
-            fw.write(json.dumps(data) + "\n")
+    for shot in [32,100]:
+        new_prompt = []
+        with open (f"datasets/{dataset}/{shot}shot/1.json", "r") as fr:
+            lines = fr.readlines()
+            for line in lines:
+                data = json.loads(line)
+                new_prompt.append(data)
+        new_prompt = modify_prompt(new_prompt, dataset)
+        with open (f"datasets/{dataset}/{shot}shot/2.json", "w") as fw:
+            for data in new_prompt:
+                fw.write(json.dumps(data) + "\n")
 
 
 for dataset in datasets:
