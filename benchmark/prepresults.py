@@ -18,7 +18,7 @@ techniques = [
     # "LenMa", "LogMine",
     "LogSig", "SHISO", "LenMa", #"IPLoM", #"LogMine",
     "AEL", "Drain", "Spell",
-    "UniParser-orig", "LogPPT-orig",
+    "UniParser", "LogPPT",
     "LLMParser", # "LLMParser_1000", "LLMParser_1000h",
     "GeLL-Drain",
 ]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 shot=32
-max_train_steps=400 #1000
+max_train_steps=400
 task_output_dir="../../result/result_LogPPT_full/"
 
 # max_train_steps=0
@@ -11,7 +11,7 @@ dataset=OpenSSH
 
 
 for dataset in Apache Hadoop HealthApp HPC Linux Mac OpenSSH OpenStack Proxifier Zookeeper
-# for dataset in OpenSSH
+# for dataset in HPC
 do
   trf="datasets/${dataset}/${shot}shot/2.json"
   tef="datasets/${dataset}/test.json"

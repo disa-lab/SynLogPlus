@@ -32,12 +32,6 @@ if __name__ == "__main__":
     config.add_argument('-full', '--full_data',
                         help="Set this if you want to test on full dataset",
                         default=False, action='store_true')
-    config.add_argument('-orig', '--original',
-                        help="Set this if you want to run the original framework",
-                        default=False, action='store_true')
-    config.add_argument('-orig', '--original',
-                        help="Set this if you want to run the original framework",
-                        default=False, action='store_true')
     config.add_argument('-epoch', '--max_epochs', type=int, default=1000)
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
@@ -53,6 +47,9 @@ if __name__ == "__main__":
     if data_type == 'full':
         datasets = [dataset for dataset in datasets if dataset not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
 
+    # datasets = ['Proxifier']
+    # dataset = 'OpenSSH'
+    # for split in [1,2,3,4,5,6]:
     for dataset in datasets:
         training_config = {
             "max_epochs": 50,
@@ -62,10 +59,7 @@ if __name__ == "__main__":
             "weight_decay": 1e-2
 
         }
-        if config.original:
-            input_folder = os.path.join(f"{data_type}_annotations-orig", dataset, "Loghub-2.0_bin_random")
-        else:
-            input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
+        input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
         corpus = Corpus(
             input_folder=input_folder,
             min_word_freq=3,
@@ -133,7 +127,7 @@ if __name__ == "__main__":
 
         for model_name in configs:
             # TODO: update the model path during inference
-            savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
+            savepath = f"saved_states_{data_type}"
             checkpoint_path = f"{savepath}/{dataset}/bilstm+w2v+cnn-w50c37f4k3-lstm64L2-lr0.1-epoch{config.max_epochs}bz16.pt"
             # checkpoint_path = f"_{data_type}/{dataset}/{model_name}-" \
             #                   f"w{configs[model_name]['word_emb_dim']}c{configs[model_name]['char_emb_dim']}f{configs[model_name]['char_cnn_filter_num']}k{configs[model_name]['char_cnn_kernel_size']}-" \
@@ -157,12 +151,13 @@ if __name__ == "__main__":
             begin_time = time.time()
             infer_config = {
                 "infering_data_dir": f"../../{data_type}_dataset",
-                "output_dir": f"../../result/result_UniParser-orig_{data_type}" if config.original else f"../../result/result_UniParser_{data_type}",
+                "output_dir": f"../../result/result_UniParser_{data_type}",
                 "batch_size": 8
             }
             # if not os.path.exists(f"{infer_config['output_dir']}/{dataset}"):
                 # os.makedirs(f"{infer_config['output_dir']}/{dataset}")
             # Start inferring...
+            # infer_data = csv_reader(os.path.join(f"{infer_config['infering_data_dir']}/{dataset}/{dataset}_{data_type}-{split}.log_structured.csv"))
             infer_data = csv_reader(os.path.join(f"{infer_config['infering_data_dir']}/{dataset}/{dataset}_{data_type}.log_structured.csv"))
             # infer_data = csv_reader(os.path.join(f"./{infer_config['infering_data_dir']}/{dataset}/{dataset}_50.log_structured.csv"))
             header = infer_data[0]
@@ -227,6 +222,8 @@ if __name__ == "__main__":
                 for key, value in template2id.items():
                     writer.writerow([value, key])
             end_time = time.time()
+            # print(f"Split: {split}")
+            print("{:3f}\n".format(end_time - begin_time))
             with open(f"infer_time_{data_type}.txt", "a") as fw:
                 fw.write(f"UniParser: {dataset} ")
                 fw.write("{:3f}\n".format(end_time - begin_time))

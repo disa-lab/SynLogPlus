@@ -63,9 +63,6 @@ config = argparse.ArgumentParser()
 config.add_argument('-full', '--full_data',
                     help="Set this if you want to test on full dataset",
                     default=False, action='store_true')
-config.add_argument('-orig', '--original',
-                    help="Set this if you want to run the original framework",
-                    default=False, action='store_true')
 config = config.parse_args()
 data_type = 'full' if config.full_data else '2k'
 if data_type == '2k':
@@ -82,13 +79,11 @@ for dataset in datasets:
     logs, templates = [i[logs_idx] for i in contents], [i[templates_idx] for i in contents]
     if config.full_data:
         logs, templates = modify_prompt(logs, templates, dataset)
-    if config.original:
-        output_dir = f"{data_type}_annotations-orig/{dataset}"
-    else:
-        output_dir = f"{data_type}_annotations/{dataset}"
+    output_dir = f"{data_type}_annotations/{dataset}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     pairs = []
+    _logs = []
     all_ner_labels = Counter()
     for _log, _template in zip(logs, templates):
         tokens_log, tokens_template = _log.split(' '), _template.split(' ')
@@ -97,6 +92,7 @@ for dataset in datasets:
             continue
         _pair = [[i, j] for i, j in zip(tokens_log, label)]
         pairs.append(_pair)
+        _logs.append(_log)
         all_ner_labels.update([i[1] for i in _pair])
     print(f"{dataset}: {all_ner_labels}")
     print(f"{dataset} # pairs: {len(pairs)}")
@@ -105,15 +101,10 @@ for dataset in datasets:
     write_json(all_ner_labels, os.path.join(output_dir, "Loghub-2.0_lables.json"))
 
     # write the pairs into files (Binary label)
-    if config.original:
-        train = random.sample(list(range(len(pairs))), int(len(pairs) * 0.2))
-        dev = random.sample([i for i in range(len(pairs)) if i not in train], int(len(pairs) * 0.2))
-        test = [i for i in range(len(pairs)) if i not in train and i not in dev]
-        print(len(pairs), len(train))
-    else:
-        train = list(range(100))
-        dev = list(range(100,120))
-        test = [i for i in range(len(pairs)) if i not in train and i not in dev]
+    train = random.sample(list(range(len(pairs))), int(len(pairs) * 0.2))
+    dev = random.sample([i for i in range(len(pairs)) if i not in train], int(len(pairs) * 0.2))
+    test = [i for i in range(len(pairs)) if i not in train and i not in dev]
+    print(len(pairs), len(train))
 
     if not os.path.exists(os.path.join(output_dir, 'Loghub-2.0_bin_random')):
         os.makedirs(os.path.join(output_dir, 'Loghub-2.0_bin_random'))
@@ -121,8 +112,10 @@ for dataset in datasets:
     write_ner_tsv_data([pairs[i] for i in dev], os.path.join(output_dir, 'Loghub-2.0_bin_random', 'val.tsv'))
     write_ner_tsv_data([pairs[i] for i in test], os.path.join(output_dir, 'Loghub-2.0_bin_random', 'test.tsv'))
 
-    with open(f"{output_dir}/training_indices.csv", "w") as f:
-        f.write( ",".join(map(str,train)) )
+    with open(f"{output_dir}/training_samples.csv", "w") as f:
+        # f.write( "\n".join(map(str,train)) )
+        _logs = [ _logs[id] for id in train ]
+        f.write( "\n".join(map(str,_logs)) )
 
 
 """

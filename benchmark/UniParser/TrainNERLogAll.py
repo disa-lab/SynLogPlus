@@ -52,9 +52,6 @@ if __name__ == "__main__":
     config.add_argument('-full', '--full_data',
                         help="Set this if you want to test on full dataset",
                         default=False, action='store_true')
-    config.add_argument('-orig', '--original',
-                        help="Set this if you want to run the original framework",
-                        default=False, action='store_true')
     config.add_argument('-epoch', '--max_epochs', type=int, default=1000)
     config = config.parse_args()
     data_type = 'full' if config.full_data else '2k'
@@ -80,10 +77,7 @@ if __name__ == "__main__":
             "weight_decay": 1e-2
 
         }
-        if config.original:
-            input_folder = os.path.join(f"{data_type}_annotations-orig", dataset, "Loghub-2.0_bin_random")
-        else:
-            input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
+        input_folder = os.path.join(f"{data_type}_annotations", dataset, "Loghub-2.0_bin_random")
         corpus = Corpus(
             input_folder=input_folder,
             min_word_freq=3,
@@ -151,7 +145,7 @@ if __name__ == "__main__":
 
         histories = {}
         for model_name in configs:
-            savepath = f"saved_states_{data_type}-orig" if config.original else f"saved_states_{data_type}"
+            savepath = f"saved_states_{data_type}"
             if not os.path.exists(f"{savepath}/{dataset}"):
                 os.makedirs(f"{savepath}/{dataset}")
             checkpoint_path = f"{savepath}/{dataset}/{model_name}-" \
