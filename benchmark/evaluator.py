@@ -9,6 +9,8 @@ def get_accuracy(series_groundtruth, series_parsedlog, dataset, queue):
     correctly_parsed_logs = series_groundtruth.eq(series_parsedlog).values.sum()
     total_logs = len(series_groundtruth)
     PA = float(correctly_parsed_logs) / total_logs
+    # print(PA, total_logs, correctly_parsed_logs, total_logs - correctly_parsed_logs)
+    # exit()
 
     series_groundtruth_valuecounts = series_groundtruth.value_counts()
     series_parsedlog_valuecounts = series_parsedlog.value_counts()
@@ -69,6 +71,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-ts", "--training_samples_file", type=str, default=None
     )
+    parser.add_argument(
+        "-is", "--ignore_space_mismatch", action="store_true",
+    )
     args = parser.parse_args()
 
     dirpath = Path(args.dirpath)
@@ -111,26 +116,31 @@ if __name__ == "__main__":
 
         df_parsedlog = pd.read_csv(predic_file, index_col=False, header='infer', dtype=str)
         df_groundtruth = pd.read_csv(ground_file)
-        series_parsedlog = df_parsedlog['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
-        series_groundtruth = df_groundtruth['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
+        if args.ignore_space_mismatch:
+            series_parsedlog = df_parsedlog['EventTemplate'].str.replace( r"\s+", "", regex=True)
+            series_groundtruth = df_groundtruth['EventTemplate'].str.replace( r"\s+", "", regex=True)
+        else:
+            series_parsedlog = df_parsedlog['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
+            series_groundtruth = df_groundtruth['EventTemplate'] #.str.replace( r"\s+", "", regex=True)
         series_content = df_groundtruth['Content']
 
         if args.exclude_training_samples:
             if args.training_samples_file:
                 with open(args.training_samples_file.format(dataset), newline='') as f:
                     reader = csv.reader(f)
-                    training_samples_indices = [ int(idx) for idx in list(reader)[0] ]
-                    # print(dataset, len(training_samples_indices))
+                    # training_samples_indices = [ int(idx) for idx in list(reader)[0] ]
+                    # training_samples = series_content[training_samples_indices].tolist()
+                    training_samples_indices = []
+                    training_samples = [ log[0] for log in list(reader)]
+                    # print(training_samples)
                     # exit()
             else:
                 training_samples_indices = list(range(100))
-            training_samples = series_content[training_samples_indices].tolist()
-            for i,content in enumerate(series_content):
-                if content in training_samples and i not in training_samples_indices:
-                    training_samples_indices.append(i)
+                training_samples = series_content[training_samples_indices].tolist()
+            training_samples_indices = [ i for i,content in enumerate(series_content) if content in training_samples ]
 
             # print(set(list(range(2000))) - set(training_samples_indices))
-            if flag: print(len(series_groundtruth) - len(training_samples_indices))
+            if flag: print(len(series_groundtruth), len(series_groundtruth) - len(training_samples_indices))
             # continue
 
             series_parsedlog.drop(  training_samples_indices, inplace=True)

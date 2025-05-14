@@ -12,7 +12,7 @@ techniques = [
     "AEL", "Drain", "IPLoM", "LenMa", "LFA", "LogCluster", "LogMine", "Logram", "LogSig",
     "MoLFI", "SHISO", "SLCT", "Spell",
     "LogPPT", "UniParser",
-    "Log3T", "GeLL",
+    "Log3T", "GeLL-Drain",
 ]
 
 series_GA  = []

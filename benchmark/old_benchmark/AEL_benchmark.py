@@ -80,7 +80,7 @@ benchmark_settings = {
         'log_format': '<Month> <Date> <Time> <Level> <Component>(\[<PID>\])?: <Content>',
         'regex': [r'(\d+\.){3}\d+', r'\d{2}:\d{2}:\d{2}'],
         'minEventCount': 2,
-        'merge_percent' : 0.6
+        'merge_percent' : 0.4
         },
 
     'Android': {

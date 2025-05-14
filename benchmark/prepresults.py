@@ -8,12 +8,19 @@ parser.add_argument("-full", "--use_full", action="store_true")
 args = parser.parse_args()
 type = 'full' if args.use_full else '2k'
 
+# frequency: LFA, LogCluster, Logram
+# heuristics: AEL, Drain, Spell,   IPLoM, MoLFI
+# similarity: LogMine,LenMa,SHISO,LogSig
+
 rootdir = Path(__file__).absolute().parent.parent
 techniques = [
-    "AEL", "Drain", "IPLoM", "LenMa", "LFA", "LogCluster", "LogMine", "Logram", "LogSig",
-    "MoLFI", "SHISO", "SLCT", "Spell",
-    "LogPPT", "UniParser",
-    "Log3T", "GeLL",
+    "LFA", "LogCluster", "Logram",
+    # "LenMa", "LogMine",
+    "LogSig", "SHISO", "LenMa", #"IPLoM", #"LogMine",
+    "AEL", "Drain", "Spell",
+    "UniParser-orig", "LogPPT-orig",
+    "LLMParser", # "LLMParser_1000", "LLMParser_1000h",
+    "GeLL-Drain",
 ]
 
 series_GA  = []
@@ -78,7 +85,8 @@ for technique in techniques:
     result_csv = pd.read_csv(result_csv_path)
     result_csv.set_index(result_csv.columns[0], inplace=True)
     if len(result_csv) < len(datasets) + 1:
-        continue
+        print(f"{technique}: length mismatch: {len(result_csv)}, {len(datasets)}")
+        # continue
     for metric in metrics:
         series = result_csv[metric].rename(technique)
         series_lists[metric].append(series)
@@ -102,6 +110,9 @@ with pd.ExcelWriter(result_dir / 'results_{}.xlsx'.format(type)) as writer:
         dfc = dfc.reindex(sorted(dfc.columns), axis=1)
         l = [ x+f'_{m}' for x in parsed_techniques[-3:] for m in metric_group ]
         dfc = dfc[ [c for c in dfc if c not in l ] + l ]
+        # dfc.drop(index=['Average'], inplace=True)
+        # dfc.sort_index(inplace=True)
+        # dfc.loc['Average'] = dfc.mean()
         dfc.to_excel(writer, sheet_name="_".join(metric_group))
 
     workbook = writer.book
@@ -111,6 +122,11 @@ with pd.ExcelWriter(result_dir / 'results_{}.xlsx'.format(type)) as writer:
         for row in range(n_rows):
             s = chr(ord('B'))
             e = chr(ord('B') + len(parsed_techniques)*2-1)
+            # if not e.isalpha():
+            #     e = 'A' + chr(ord(e) - ord('Z') + ord('A'))
+            if not e.isupper():
+                e = 'A' + chr(ord(e) - ord('Z') + ord('A'))
+            # print("---", e)
             for metric in metrics:
                 worksheet.conditional_format('{}{}:{}{}'.format(s,row+2,e,row+2), {
                     'type':     'cell',

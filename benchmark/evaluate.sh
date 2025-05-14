@@ -8,17 +8,15 @@ else
   param=""
 fi
 
-# echo $type
-# echo $param
+echo $type
+echo $param
 
-# for technique in AEL Drain IPLoM LFA LogCluster Logram LogSig MoLFI SHISO # Spell
-# for technique in AEL Drain IPLoM LenMa LFA LogCluster LogMine Logram LogSig MoLFI SHISO SLCT Spell \
-# for technique in AEL Drain # GeLL # IPLoM LFA LogCluster Logram SHISO \
-  # LogPPT UniParser
-for technique in GeLL
+techniques="GeLL-AEL GeLL-Drain GeLL-IPLoM GeLL-LFA GeLL-LogCluster GeLL-Logram GeLL-LogSig GeLL-MoLFI GeLL-SHISO GeLL-Spell"
+
+for technique in ${techniques}
 do
     echo ${technique}
     python evaluator.py --dirpath ../result/result_${technique}_${type}/ \
-      --pathformat "{}_${type}.log_structured.csv" ${param} # 2>&1>/dev/null &
+      --pathformat "{}_${type}.log_structured.csv" ${param} # --data Linux 2>&1>/dev/null &
 done
 wait
