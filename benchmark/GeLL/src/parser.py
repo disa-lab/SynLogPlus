@@ -162,10 +162,10 @@ class LogParser:
         new_template = "<*>".join(templsplit)
         if pflag:
             print("r", new_template)
-        # exit()
         if new_template != template:
-            print(template)
-            print(new_template)
+            print('Fixing spaces:')
+            print('Wrong template:', template)
+            print('Fixed template:', new_template)
         return new_template
 
     def extract_template(self, msg1,msg2,templ,flag=False, pflag=False):
@@ -301,29 +301,43 @@ class LogParser:
             ]
 
             if len(sampled_logs) == 1:
-                _template = self.refine_template(tokenized_logs[0], " ".join(template).strip(), pflag)
+                extracted_template = self.refine_template(tokenized_logs[0], " ".join(template).strip(), pflag)
             else:
-                _template = self.extract_template(tokenized_logs[0],tokenized_logs[1], template, False, pflag)
+                extracted_template = self.extract_template(tokenized_logs[0],tokenized_logs[1], template, False, pflag)
 
-            extracted_template = self.post_process("".join(tokenized_logs[0]), _template)
+            # extracted_template = self.post_process("".join(tokenized_logs[0]), extracted_template)
 
-            pflag = False
+            for idx in group_member_indices:
+                log = log_messages[idx]
+                _template = extracted_template
+                template_split = self.tokenize_log(_template.replace('<*>',''))
+                for token in template_split:
+                    if token not in log:
+                        _template = _template.replace(token, '<*>')
+                _template = self.post_process(log, _template)
+                extracted_template = _template
+
             for idx in group_member_indices:
                 predictions[idx] = extracted_template
-                log = log_messages[idx]
-                if not self.is_a_match(log, extracted_template):
-                    if pflag:
-                        print("---")
-                        print(log)
-                        print(extracted_template)
-                    template_split = self.tokenize_log(extracted_template.replace('<*>',''))
-                    for token in template_split:
-                        if token not in log:
-                            _template = _template.replace(token, '<*>')
-                    if pflag:
-                        print(_template)
-                        print("---")
-                    predictions[idx] = _template
+
+            # pflag = False
+            # for idx in group_member_indices:
+            #     predictions[idx] = extracted_template
+            #     log = log_messages[idx]
+            #     if not self.is_a_match(log, extracted_template):
+            #         if pflag:
+            #             print("---")
+            #             print(log)
+            #             print(extracted_template)
+            #         _template = extracted_template
+            #         template_split = self.tokenize_log(_template.replace('<*>',''))
+            #         for token in template_split:
+            #             if token not in log:
+            #                 _template = _template.replace(token, '<*>')
+            #         if pflag:
+            #             print(_template)
+            #             print("---")
+            #         predictions[idx] = _template
 
 
         return predictions
