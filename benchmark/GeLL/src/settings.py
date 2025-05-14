@@ -1,10 +1,3 @@
-import os
-import sys
-import random
-
-import numpy as np
-import torch
-
 benchmark_settings = {
 
     'Linux': {
@@ -120,18 +113,3 @@ benchmark_settings = {
     },
 
 }
-
-def get_attn_pad_mask_rev(seq_q,seq_k):
-    batch_size, seq_len = seq_q.size()
-    # eq(zero) is PAD token
-    # pad_attn_mask = seq_q.data.eq(0).unsqueeze(1)  # [batch_size, 1, seq_len]
-    pad_attn_mask1 = seq_q.data.eq(0).unsqueeze(1)  # [batch_size, 1, seq_len]
-    pad_attn_mask2 = seq_k.data.eq(-1).unsqueeze(1)
-    pad_attn_mask  = torch.bitwise_or(pad_attn_mask1, pad_attn_mask2)
-    return pad_attn_mask.expand(batch_size, seq_len, seq_len)  # [batch_size, seq_len, seq_len]
-
-def get_attn_pad_mask(seq_q):
-    batch_size, seq_len = seq_q.size()
-    # eq(zero) is PAD token
-    pad_attn_mask = seq_q.data.ne(0).unsqueeze(1)  # [batch_size, 1, seq_len]
-    return pad_attn_mask.expand(batch_size, seq_len, seq_len)  # [batch_size, seq_len, seq_len]

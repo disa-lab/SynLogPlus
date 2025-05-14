@@ -4,7 +4,6 @@ import sys
 import csv
 import copy
 import json
-import torch
 import math
 import argparse
 import datetime
@@ -14,44 +13,83 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from tqdm.auto import tqdm
 import numpy as np
 import pandas as pd
-import torch.nn as nn
-import torch.utils.data as Data
-import transformers as trf
 
 from .settings import benchmark_settings
-from .settings import get_attn_pad_mask, get_attn_pad_mask_rev
 from .loader import load_data
-from .transformer_encoder import BERT, MyDataSet
-from .utils import *
 
 from logparser.Drain import LogParser as drain
 
-def read_logs(logdir, dataset, use_full=False):
-    logdir = Path(logdir) if isinstance(logdir,str) else logdir
-    if use_full:
-        log_file = logdir / dataset / '{}_full.log'.format(dataset)
-        ground_file = logdir / dataset / '{}_full.log_structured.csv'.format(dataset)
-    else:
-        log_file = logdir / dataset / '{}_2k.log'.format(dataset)
-        ground_file = logdir / dataset / '{}_2k.log_structured_corrected.csv'.format(dataset)
 
-    df = load_data(benchmark_settings[dataset]['log_format'], log_file)
-    log_messages = df['Content'].map(str).tolist()
-    # XXX: removing double-spaces
-    log_messages = [re.sub(r'\s+', ' ', e.strip()) for e in log_messages]
+def plg(lg):
+    # print("{\n" + "\n".join("{!r}: {!r},".format(k, v) for k, v in lg.items()) + "\n}")
+    pass
 
-    log_templates = pd.read_csv(ground_file,dtype=str)['EventTemplate'].map(str).tolist()
-    return log_messages, log_templates
+
+def is_pure_number(s):
+    bases = [0]
+    if len(s)>=6: bases.append(16)
+    for b in bases:
+        for func in (float, lambda x: int(x, b)):
+            try:
+                func(s)
+                return True
+            except ValueError:
+                continue
+    return False
+
+def is_number(s):
+    if is_pure_number(s) or all([ is_pure_number(_s) for _s in re.split(r'[\/]',s) ]):
+        return True
+    n_digits = 0
+    n_alphas = 0
+    for c in s:
+        if c.isalpha():
+            n_alphas+=1
+        elif c.isdigit():
+            n_digits+=1
+    return n_digits > n_alphas
+
+def word_is_variable(word):
+    patterns = [
+        r'(^|\W+)(\d){1,2}:(\d){1,2}(|:(\d){2,4})(\W+|$)',
+        r'(^|\W)(\d{1,2}(-|/)\d{1,2}(-|/)\d{2,4})(\W|$)',
+        # r'(^|\W)(?:[-0-9a-zA-Z]+\.)+[-0-9a-zA-Z]+(?::?:\d+)?',
+        r'(/|)([0-9]+\.){3}[0-9]+(:[0-9]+|)',
+        r'(^|\W)[-0-9a-zA-Z]+(?::?:\d+)',
+        r'(|^)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(|$)',
+        r'(^|\W)(0x)?[A-Fa-f0-9]{5,}(\W|$)',
+    ]
+
+    common_vars = ['false','true','root','null']
+    if word.lower() in common_vars:
+        return True
+
+    for pat in patterns:
+        if re.findall(pat,word):
+            return True
+    return False
 
 class LogParser:
-    def __init__(self, dataset, model, tokenizer, threshold, maxlen=128, word_maxlen=16):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = model.to(self.device)
-        self.tokenizer = tokenizer
-        self.threshold = threshold
+    def __init__(self, dataset):
         self.dataset = dataset
-        self.maxlen = maxlen
-        self.word_maxlen = word_maxlen
+        self.delims = [ c for c in ' ,!@#$%^&(){}[]=-_:"' ]
+
+    def read_logs(self, logdir, dataset, use_full=False):
+        logdir = Path(logdir) if isinstance(logdir,str) else logdir
+        if use_full:
+            log_file = logdir / dataset / '{}_full.log'.format(dataset)
+            ground_file = logdir / dataset / '{}_full.log_structured.csv'.format(dataset)
+        else:
+            log_file = logdir / dataset / '{}_2k.log'.format(dataset)
+            ground_file = logdir / dataset / '{}_2k.log_structured_corrected.csv'.format(dataset)
+
+        df = load_data(benchmark_settings[dataset]['log_format'], log_file)
+        log_messages = df['Content'].map(str).tolist()
+        # XXX: removing double-spaces
+        log_messages = [re.sub(r'\s+', ' ', e.strip()) for e in log_messages]
+
+        log_templates = pd.read_csv(ground_file,dtype=str)['EventTemplate'].map(str).tolist()
+        return log_messages, log_templates
 
     def group_logs(self, grouped_csv_path):
         df = pd.read_csv(grouped_csv_path,dtype=str)
@@ -59,181 +97,201 @@ class LogParser:
         log_templates = df['EventTemplate'].map(str).tolist()
         log_groups = {}
         for idx,template in enumerate(log_templates):
-            template_split = tuple(wordsplit(template, self.dataset, granular=False))
+            template_split = tuple(template.split())
             log_groups.setdefault(template_split, []).append(idx)
         return log_groups
 
-    def setup_log_groups(self, log_templates):
-        log_groups = {}
-        for idx,template in enumerate(log_templates):
-            template_split = tuple(wordsplit(template, self.dataset, granular=False))
-            log_groups.setdefault(template_split, []).append(idx)
-        return log_groups
-
-    def create_train_data_from_historical_log(self, log_messages, log_templates):
-        maxlen, word_maxlen = self.maxlen, self.word_maxlen
-
-        train_data = []
-        for log,template in zip(log_messages,log_templates):
-            log = wordsplit(log,self.dataset)
-            # print(log)
-            variable_tokens = []
-            indexed_tokens = []
-            _parsed_template = []
-            for word in log:
-                tokenized_text = self.tokenizer.tokenize(word)
-                index_new = self.tokenizer.convert_tokens_to_ids(tokenized_text)
-                if len(index_new) > word_maxlen:
-                    index_new = index_new[:word_maxlen]
-                else:
-                    index_new = index_new + (word_maxlen - len(index_new)) * [0]
-                if word not in template:
-                    _parsed_template.append("<*>")
-                    variable_tokens_this_word = [1] * word_maxlen
-                else:
-                    _parsed_template.append(word)
-                    variable_tokens_this_word = [0] * word_maxlen
-                indexed_tokens.extend(index_new)
-                variable_tokens.extend(variable_tokens_this_word)
-            # print(log)
-            # print(_parsed_template)
-            tokens_id_tensor = torch.tensor([indexed_tokens])
-            tokens_index = np.squeeze(tokens_id_tensor.numpy()).tolist()
-
-            tokens_index = tokens_index if len(tokens_index) < maxlen*word_maxlen else tokens_index[:maxlen*word_maxlen]
-            n_pad = maxlen * word_maxlen - len(tokens_index)
-            tokens_index.extend([0] * n_pad)
-            variable_tokens.extend([0] * n_pad)
-
-            train_data.append([tokens_index,variable_tokens])
-        # print(len(train_data))
-        # print(len(train_data[0][0]), len(train_data[0][1]))
-        # print(len(train_data[1][0]), len(train_data[1][1]))
-        # print(train_data[0])
-        return train_data
-
-    def train_classifier(self, train_data, n_epochs=3, batchsize=10):
-        device = self.device
-
-        # torch.cuda.empty_cache()
-        input_ids, masked_tokens = zip(*train_data)
-        input_ids, masked_tokens = torch.LongTensor(input_ids), torch.LongTensor(masked_tokens)
-        loader = Data.DataLoader(MyDataSet(input_ids, masked_tokens), batchsize, False)
-
-        loss_fct = nn.BCELoss()
-        optimizer = torch.optim.Adam(self.model.parameters(),lr=0.001)
-
-        self.model.train()
-        losses = []
-        for epoch in range(n_epochs):
-            for (input_ids_train, masked_tokens_train) in loader:
-
-                input_ids_train, masked_tokens_train = input_ids_train.to(device), masked_tokens_train.to(device)
-
-                self_attn_mask = get_attn_pad_mask_rev(input_ids_train,masked_tokens_train)
-                self_attn_mask = None
-                logits_lm = self.model(input_ids_train, stage='train', enc_self_attn_mask=self_attn_mask).to(device)
-                a = logits_lm.squeeze(-1)
-                b = input_ids_train.clone()
-                c = torch.where(b != 0, 1, 0)
-                e = torch.where(masked_tokens_train.clone() != -1, 1, 0)
-                # print(logits_lm.shape,a.shape,b.shape,c.shape)
-                d = a * c
-                # if is_ttt: continue
-                mask = d > 0  #
-                x_selected = d[mask]  #
-                y_selected = masked_tokens_train[mask]
-                loss_lm = loss_fct(x_selected.to(device),
-                                y_selected.float()).to(device)
-                loss_lm = (loss_lm.float()).mean().to(device)
-                losses.append(loss_lm)
-                loss = loss_lm.to(device)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-        # f_loss = open("losses.txt", "w")
-        # for loss in losses:
-        #     print(loss, file=f_loss)
-        # f_loss.close()
-
-    def _get_prediction(self, logsplit):
-        maxlen = self.maxlen
-        word_maxlen = self.word_maxlen
-        device = self.device
-
-        # print(logsplit)
-        input_ids = tokenize_words(logsplit, self.tokenizer, word_maxlen)
-        input_ids = input_ids[:maxlen*word_maxlen] if len(input_ids)>=maxlen*word_maxlen else input_ids
-        input_ids.extend([0] * (maxlen*word_maxlen - len(input_ids)))
-        input_ids = [input_ids]
-        input_ids = torch.LongTensor(input_ids).to(device)
-
-        self.model.eval()
-        # self_attn_mask = get_attn_pad_mask_rev(input_ids, )
-        logits_lm = self.model(input_ids, stage='train', enc_self_attn_mask=None).to(device)
-
-        # print(len(logits_lm[0]))
-        true_length = len(logsplit)
-        input_ids_this = input_ids[0].cpu().detach().numpy().tolist()
-        predict = logits_lm[0]
-        predict_distrbution = predict.cpu().detach().numpy().tolist()
-        predict_for_words = []
-        for _count in range(true_length):
-            count = _count * word_maxlen
-            input_ids_this_word = input_ids_this[count:count + word_maxlen]
-            if 0 in input_ids_this_word:
-                zero_index = input_ids_this_word.index(0)
-            else:
-                zero_index = word_maxlen
-            if zero_index == 0:
-                predict_for_words.append(0)
-                continue
-            probablity = predict_distrbution[count:count + word_maxlen]
-            representative = max(probablity[0:zero_index])
-            predict_for_words.extend(representative)
-            # representative = np.mean(probablity[0:zero_index]).item()
-            # predict_for_words.append(representative)
-        # print(predict_for_words)
-        assert len(predict_for_words) == len(logsplit)
-        parsed_template = [
-            logsplit[i]
-            if not exclude_digits(logsplit[i]) and predict_for_words[i] < self.threshold else "<*>"
-            for i in range(len(predict_for_words))
+    def anonymize_with_regex(self,msg):
+        patterns = [
+            r'((?<=^)|(?<=\W))([A-Fa-f0-9]{2}:){5,}[A-Fa-f0-9]{2}(?=(\W|$))',
+            r'((?<=^)|(?<=\W))(\d{1,4}(-|/)\d{1,2}(-|/)\d{1,4})(?=(\W|$))',
+            # Sat Jun 11 03:28:22 2005
+            r'((?<=^)|(?<=\W))((Sat|Sun|Mon|Tue|Wed|Thu|Fri)\s)?((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s)(\d{,2}\s?)((\d{2}\:){2}\d{2}\s?)?([A-Z]{3}\s?)?(\d{4})?(?=(\W|$))',
+            r'((?<=^)|(?<=\W))[0-9a-zA-Z]+@([0-9a-zA-Z]+\.)+[0-9a-zA-Z]+(?=(\W|$))',
+            r'((?<=^)|(?<=\W))\/?(?:[-0-9a-zA-Z]+\.){2,}[-0-9a-zA-Z]+(?::?:\d+)?(?=(\W|$))',
+            r'((?<=^)|(?<=\W))[+-]?(\d+s(\d+\s?ms)?|\d+\s?ms)(?=(\W|$))',
+            r'((?<=^)|(?<=\W))(\d+(\.\d+)?)\s?[kmgKMG]i?[bB]?((\/s)|(ytes))?(?=(\W|$))',
+            r'((?<=^)|(?<=\W))(\d+(\.\d+)?)[KMG]Hz(?=(\W|$))',
+            # r'((?<=^)|(?<=\W))(\d+(\.\d+))k(?=(\W|$))',
+            r'((?<=^)|(?<=\W))(\/[\d+\w+\-_\.\#\$]*[\/\.][\d+\w+\-_\.\#\$\/*]*)+(\sHTTPS?\/\d\.\d)?(?=(\W|$))',
+            # r'((?<=^)|(?<=\W))(\/[\d+\w+\-_\.\#\$]+\/?)+(\/[\d+\w+\-_\#\$]+\/?)(\.[\d+\w+\-_\#\$\/*]+)?(?=(\W|$))',
+            # r'((?<=^)|(?<=\W))HTTPS?\/\d+(\.\d+)?(?=(\W|$))',
+            r'((?<=^)|(?<=\W))([a-zA-Z]\:[\/\\][\d+\w+\-_\.\#\$]*([\/\\\.][\d+\w+\-_\.\#\$\\\/*]*)?)(?=(\W|$))',
+            # r'(?<=\w\=)[^ "]+',
+            # r'(?<=(\="))[^"]+',
         ]
-        return parsed_template, predict_for_words
 
-    def get_predictions(self, logmsg):
-        maxlen = 128 # max number of words in a log
-        word_maxlen=16 # max sub tokens in a word
+        for pat in patterns:
+            msg = re.sub(pat, "<*>", msg)
+        return msg
 
-        logsplit = wordsplit(logmsg,self.dataset)
-        parsed_template, predict_for_words = self._get_prediction(logsplit)
+    def subvars(self, template):
+        for _ in range(3):
+            template = re.sub(r'\w+_<\*>', "<*>", template)
+            template = re.sub(r'<\*>_\w+', "<*>", template)
+            template = re.sub(r'<\*>\%(\W)', "<*>\\1", template)
+            template = re.sub(r'(<\*>[ @:$_/]?)+<\*>', "<*>", template)
+            template = re.sub(r'(<\*>, ?)+<\*>', "<*>", template)
+            template = re.sub(r'(<\*>\+)+<\*>', "<*>", template)
+            template = re.sub(r'(@<\*> )+@<\*>', "@<*>", template)
+            template = re.sub(r'(<\*>#+)+<\*>', "<*>", template)
+            template = re.sub(r'(?<=\<\*\> )\(\w+\)(?=(\W|$))', '(<*>)', template)
+            # template = template.replace(' ()', ' (<*>)')
+        return template
 
-        # print(logsplit)
-        # print(["{0:0.3f}".format(i) for i in predict_for_words])
-        # print(parsed_template)
+    def fix_spaces(self, msg, template, pflag=False):
+        if pflag:
+            print("r", msg)
+            print("r", template)
+        templsplit = template.split("<*>")
+        # print(templsplit)
+        for i, split in enumerate(templsplit):
+            if split in msg: continue
+            space_indices = [i for i, ltr in enumerate(split) if ltr == ' ']
+            if pflag:
+                print("r", space_indices)
+                print("r", split)
+            for j in space_indices:
+                new_split = split[:j] + split[j+1:]
+                if new_split in msg:
+                    templsplit[i] = new_split
+                    if pflag:
+                        print("r", new_split)
+                        print("r", templsplit)
+                    continue
+        new_template = "<*>".join(templsplit)
+        if pflag:
+            print("r", new_template)
+        # exit()
+        if new_template != template:
+            print(template)
+            print(new_template)
+        return new_template
 
-        return parsed_template, predict_for_words
+    def extract_template(self, msg1,msg2,templ,flag=False, pflag=False):
+        short = msg1 if len(msg1)<=len(msg2) else msg2
+        long  = msg1 if short!=msg1 else msg2
 
-    def train(self, log_messages, log_templates, n_epochs=3):
-        train_data = self.create_train_data_from_historical_log(log_messages, log_templates)
-        self.train_classifier(train_data, n_epochs)
+        if pflag:
+            print(short)
+            print(long)
+            print(templ)
+
+        last_idx = None
+        template = []
+
+        def get_index_in_list(word, list, idx):
+            try:
+                return list.index(word,idx)
+            except ValueError:
+                return None
+
+        prev_word = None
+        for idx,word in enumerate(short):
+            if is_number(word) or word.lower() in ['false','true','root','null']: # or prev_word in ['=','is','are']:
+                if pflag:
+                    print("a1",word)
+                template.append('<*>')
+                continue
+            if word in self.delims or ''.join(list(set(word)))=='.':
+                if pflag:
+                    print("a2",word)
+                template.append(word)
+                continue
+            matched_index = get_index_in_list(word, long, last_idx+1 if last_idx is not None else 0)
+            if matched_index is not None:
+                if word in "".join(templ):
+                    if pflag:
+                        print("a3",word)
+                    template.append(word)
+                elif flag:
+                    if pflag:
+                        print("a4",word)
+                    template.append('<*>')
+                    continue
+                elif idx+1<len(short) and (short[idx+1]=='=' or ''.join(list(set(short[idx+1])))=='.' ):
+                    if pflag:
+                        print("a5",word)
+                    template.append(word)
+                elif word_is_variable(word):
+                    if pflag:
+                        print("a6",word)
+                    template.append("<*>")
+                else:
+                    if pflag:
+                        print("a7",word)
+                    template.append(word)
+            else:
+                if pflag:
+                    print("a8",word)
+                template.append('<*>')
+
+        if pflag:
+            print(template)
+        template = "".join(template).strip()
+
+        return template
+
+    def refine_template(self, msg,templ, pflag=False):
+        if pflag:
+            print('f', msg)
+        template = [ "<*>" if is_number(word) or word_is_variable(word) else word for word in msg ]
+        template = "".join(template)
+        return template
+
+    def tokenize_log(self, msg, pflag=False):
+        if pflag:
+            print("h", msg)
+        msgsplit = re.split(r'(\.$|\.{5,}|[\s,;!@#$%^&(){}\[\]=_:"\+])', msg)
+        new_msgsplit = []
+        for split in msgsplit:
+            if len(split) > 1 and split[-1] == '.':
+                new_msgsplit.append(split[:-1])
+                new_msgsplit.append(split[-1])
+            else:
+                new_msgsplit.append(split)
+        return new_msgsplit
+
+    def post_process(self, log, template, pflag=False):
+        template = self.subvars(template)
+        template = self.fix_spaces(log, template, pflag)
+        template = re.sub(r'\<\*\> sec$', '<*>', template)
+        return template
 
     def fix_templates(self, log_groups, log_messages):
-        predictions = update_templates(log_groups, log_messages)
+        predictions = [0] * len(log_messages)
+
+        for template, group_member_indices in tqdm(log_groups.items(), total=len(log_groups.keys())):
+            pflag = False
+            # if 1 in group_member_indices:
+            #     pflag = True
+
+            logs_in_this_group = [ log_messages[iii] for iii in group_member_indices ]
+            # logs_in_this_group = list(set(logs_in_this_group))
+
+            sampled_logs = []
+            for iii in group_member_indices:
+                if len(sampled_logs) > 2: continue
+                if log_messages[iii] not in sampled_logs:
+                    sampled_logs.append(log_messages[iii])
+
+            anonymized_logs = [
+                self.anonymize_with_regex(log) for log in sampled_logs
+            ]
+            tokenized_logs = [
+                list(filter(None, self.tokenize_log(log, pflag)))
+                for log in anonymized_logs
+            ]
+
+            if len(sampled_logs) == 1:
+                _template = self.refine_template(tokenized_logs[0], " ".join(template).strip(), pflag)
+            else:
+                _template = self.extract_template(tokenized_logs[0],tokenized_logs[1], template, False, pflag)
+
+            _template = self.post_process("".join(tokenized_logs[0]), _template)
+
+            for idx in group_member_indices:
+                predictions[idx] = _template
+
         return predictions
 
-    def parse(self, log_messages, log_groups, history_cutoff):
-        for log_id, logmsg in tqdm(enumerate(log_messages),total=len(log_messages)):
-            if log_id < history_cutoff: continue
-            # if log_id >= 500: break
-            logsplit = wordsplit(logmsg, self.dataset, granular=False)
-            templ = match_with_existing_groups(log_groups, logsplit, self.dataset, log_id)
-            if templ is not None:
-                log_groups.setdefault(templ, []).append(log_id)
-            else:
-                parsed_template, probabilities = self.get_predictions(logmsg)
-                log_groups.setdefault(tuple(parsed_template), []).append(log_id)
-
-        return self.fix_templates(log_groups, log_messages)

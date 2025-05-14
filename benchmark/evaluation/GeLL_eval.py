@@ -10,6 +10,7 @@ from old_benchmark.Drain_benchmark import benchmark_settings
 from evaluation.utils.common import common_args, unique_output_dir
 from evaluation.utils.evaluator_main import evaluator, prepare_results
 from evaluation.utils.postprocess import post_average
+import time
 
 datasets_2k = [
     "Proxifier",
@@ -66,28 +67,22 @@ if __name__ == "__main__":
         datasets = datasets_full
     else:
         datasets = datasets_2k
-    # datasets = ['Linux']
 
+    # dataset = 'OpenSSH'
     for dataset in datasets:
-        # if dataset != 'OpenStack': continue
-        print(dataset)
+    # for split in [1,2,3,4,5,6]:
+        # print(f"\nSplit: {split}")
         setting = benchmark_settings[dataset]
-
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")
-        indir = os.path.join(input_dir, os.path.dirname(log_file))
-        log_messages, log_templates = read_logs(input_dir, dataset, data_type=='full')
+        # log_file = log_file.replace(data_type, f"{data_type}-{split}")
 
-        history_cutoff = 100
-        maxlen         = 128 # max number of words in a log
-        word_maxlen    = 16 # max sub tokens in a word
-
-        model = BERT()
-        tokenizer = trf.BertTokenizerFast.from_pretrained("bert-base-uncased")
-        threshold      = 0.8
-
-        parser = LogParser(dataset, model, tokenizer, threshold, maxlen, word_maxlen)
+        start_time = time.time()
+        parser = LogParser(dataset)
+        log_messages, log_templates = parser.read_logs(input_dir, dataset, data_type=='full')
         log_groups = parser.group_logs(Path(f'../../result/result_{grouper}_{data_type}/{dataset}_{data_type}.log_structured.csv'))
+        # log_groups = parser.group_logs(Path(f'../../result/result_{grouper}_{data_type}/{dataset}_{data_type}-{split}.log_structured.csv'))
         predictions = parser.fix_templates(log_groups,log_messages)
+        print(f"Parsing time: {time.time() - start_time}")
 
         os.makedirs(output_dir, exist_ok=True)
         _df = pd.DataFrame(data=list(zip(log_messages,predictions)))
