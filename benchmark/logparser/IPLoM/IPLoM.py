@@ -64,7 +64,7 @@ class LogParser:
     def __init__(self, log_format, indir='../logs/', outdir='./result/',
                  maxEventLen=200, step2Support=0, PST=0,
                  CT=0.35, lowerBound=0.25, upperBound=0.9,
-                 rex=[], keep_para=True):
+                 rex=[], keep_para=False):
 
         self.para = Para(log_format=log_format, indir=indir, outdir=outdir, maxEventLen=maxEventLen, step2Support=step2Support,
                          PST=PST, CT=CT, lowerBound=lowerBound, upperBound=upperBound, rex=rex)
@@ -211,8 +211,8 @@ class LogParser:
                     p1Set.add(logL[p1])
                     p2Set.add(logL[p2])
 
-                    if (logL[p1] == logL[p2]):
-                        print ("Warning: p1 may be equal to p2")
+                    # if (logL[p1] == logL[p2]):
+                    #     print ("Warning: p1 may be equal to p2")
 
                     if logL[p1] not in mapRelation1DS:
                         mapRelation1DS[logL[p1]] = set()

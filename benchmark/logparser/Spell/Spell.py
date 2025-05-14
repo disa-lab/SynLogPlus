@@ -42,7 +42,7 @@ class LogParser:
         savePath : the path of the output file
         tau : how much percentage of tokens matched to merge a log message
     """
-    def __init__(self, indir='./', outdir='./result/', log_format=None, tau=0.5, rex=[], keep_para=True):
+    def __init__(self, indir='./', outdir='./result/', log_format=None, tau=0.5, rex=[], keep_para=False):
         self.path = indir
         self.logName = None
         self.savePath = outdir

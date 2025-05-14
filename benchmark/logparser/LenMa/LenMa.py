@@ -11,6 +11,7 @@ import os
 import hashlib
 from collections import defaultdict
 from datetime import datetime
+from tqdm.auto import tqdm
 
 class LogParser(object):
     def __init__(self, indir, outdir, log_format, threshold=0.9, predefined_templates=None, rex=[]):
@@ -30,7 +31,7 @@ class LogParser(object):
         starttime = datetime.now()
         headers, regex = self.generate_logformat_regex(self.logformat)
         self.df_log = self.log_to_dataframe(os.path.join(self.path, self.logname), regex, headers, self.logformat)
-        for idx, line in self.df_log.iterrows():
+        for idx, line in tqdm(self.df_log.iterrows(), total=len(self.df_log)):
             line = line['Content']
             if self.rex:
                 for currentRex in self.rex:

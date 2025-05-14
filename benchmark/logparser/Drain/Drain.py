@@ -31,7 +31,7 @@ class Node:
 
 class LogParser:
     def __init__(self, log_format, indir='./', outdir='./result/', depth=4, st=0.4, 
-                 maxChild=100, rex=[], keep_para=True):
+                 maxChild=100, rex=[], keep_para=False):
         """
         Attributes
         ----------
@@ -274,8 +274,8 @@ class LogParser:
                     matchCluster.logTemplate = newTemplate
 
             count += 1
-            if count % 1000 == 0 or count == len(self.df_log):
-                print('Processed {0:.1f}% of log lines.'.format(count * 100.0 / len(self.df_log)))
+            # if count % 1000 == 0 or count == len(self.df_log):
+            #     print('Processed {0:.1f}% of log lines.'.format(count * 100.0 / len(self.df_log)))
 
 
         if not os.path.exists(self.savePath):
