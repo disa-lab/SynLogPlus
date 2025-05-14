@@ -67,6 +67,7 @@ if __name__ == "__main__":
         datasets = datasets_full
     else:
         datasets = datasets_2k
+    # datasets = ['HPC']
 
     # dataset = 'OpenSSH'
     for dataset in datasets:

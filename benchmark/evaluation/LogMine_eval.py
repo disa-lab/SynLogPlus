@@ -47,15 +47,15 @@ datasets_full = [
     "Linux",
     "Apache",
     "Zookeeper",
-    "Hadoop",
-    # "HealthApp",
-    # "OpenStack",
-    # "HPC",
     "Mac",
+    "Hadoop",
+    "OpenStack",
+    "HealthApp",
+    # "HPC",
     # "OpenSSH",
     # "Spark",
     # "Thunderbird",
-    "BGL",
+    # "BGL",
     # "HDFS",
 ]
 
@@ -77,6 +77,7 @@ if __name__ == "__main__":
         datasets = datasets_full
     else:
         datasets = datasets_2k
+
     for dataset in datasets:
         setting = benchmark_settings[dataset]
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")

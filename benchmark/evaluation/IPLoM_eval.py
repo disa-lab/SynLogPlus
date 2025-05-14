@@ -79,9 +79,14 @@ if __name__ == "__main__":
         datasets = datasets_full
     else:
         datasets = datasets_2k
+
+    # dataset = 'OpenSSH'
     for dataset in datasets:
+    # for split in [1,2,3,4,5,6]:
+        # print(f"\nSplit: {split}")
         setting = benchmark_settings[dataset]
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")
+        # log_file = log_file.replace(data_type, f"{data_type}-{split}")
         indir = os.path.join(input_dir, os.path.dirname(log_file))
         if os.path.exists(os.path.join(output_dir, f"{dataset}_{data_type}.log_structured.csv")):
             parser = None
