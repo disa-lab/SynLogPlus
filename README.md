@@ -1,129 +1,114 @@
-# Loghub-2.0 (LogPub)
-
-Loghub-2.0 is a collection of large-scale annotated datasets for log parsing based on Loghub, proposed by LogPAI.
-
-Based on Loghub-2.0, we propose a more comprehensive benchmark of log parsers. The detailed evaluation results could be found at [RQ_experiments](RQs_experiments/README.md) 🔗.
-
+# Syn+: Improving the Templates Identified by Syntax-based Log Parsers
 
 ## Datasets Characteristics
 
 | Software systems          | # Annotated Logs (Loghub-2.0) | # Templates  (Loghub-2.0) | # Templates (Loghub-2k) |
 | ------------------------- | ------------------------- | --------------------- | ----------------------- |
-| **Distributed systems**   |                           |                       |                         |
 | Hadoop                    | 179,993                   | 236                   | 114                     |
-| HDFS                      | 11,167,740                | 46                    | 14                      |
 | OpenStack                 | 207,632                   | 48                    | 43                      |
-| Spark                     | 16,075,117                | 236                   | 36                      |
 | Zookeeper                 | 74,273                    | 89                    | 50                      |
-| **Supercomputer systems** |                           |                       |                         |
-| BGL                       | 4,631,261                 | 320                   | 120                     |
 | HPC                       | 429,987                   | 74                    | 46                      |
-| Thunderbird               | 16,601,745                | 1,241                 | 149                     |
-| **Operating systems**     |                           |                       |                         |
 | Linux                     | 23,921                    | 338                   | 118                     |
 | Mac                       | 100,314                   | 626                   | 341                     |
-| **Server application**    |                           |                       |                         |
 | Apache                    | 51,977                    | 29                    | 6                       |
 | OpenSSH                   | 638,946                   | 38                    | 27                      |
-| **Standalone software**   |                           |                       |                         |
 | HealthApp                 | 212,394                   | 156                   | 75                      |
 | Proxifier                 | 21,320                    | 11                    | 8                       |
-| **Average**               | **3,601,187**             | **249.1**             | **81.9**                |
 
 
-## Datasets download
-
-Please first download the full datasets of Loghub-2.0 via [Zenodo](https://zenodo.org/record/8275861).
-
-Then, you need to put these datasets into `full_dataset/` following the format of `2k_dataset`.
-
-
-## Repository Organization 
+## Repository Organization
 
 ```
-├── 2k_dataset/ # the original Loghub-2k datasets
-├── full_dataset/ # unzip the Loghub-2.0 into this directory
-│   └── post_process.py # we provide the heuristic roles used in our annotation of templates 
+├── 2k_dataset/ # The original Loghub-2k datasets
+├── full_dataset/ # Loghub-2.0 datasets
 ├── benchmark/
-│   ├── evaluation/
-│   ├── logparser/
+│   ├── evaluation/ # Evaluation scripts for benchmark log parsers
+│   ├── logparser/  # Benchmark log parsers (syntax-based)
 │   ├── old_benchmark/
-│   ├── LogPPT/ # contains the modified source code of LogPPT
-│   ├── UniParser/ # contains the source code of implemented UniParser
-│   ├── run_statistic_2k.sh # the script to run all statistic-based log parsers on Loghub-2k datasets
-│   └── run_statistic_full.sh # the script to run all statistic-based log parsers on Loghub-2.0 datasets
+│   ├── LogPPT/     # contains the modified source code of LogPPT
+│   ├── LLMParser/  # contains the modified source code of LLMParser
+│   └── UniParser/  # contains the source code of implemented UniParser
 ├── result/
-│   ├── ...... # 
+│   ├── ...... #
 │   └── ...... # contains the output evaluation metric files and all parsed results
-├── RQ_experiments/ # contains the experimental results of RQs
-│   ├── RQ1/
-│   ├── RQ2/
-│   └── RQ3/
 ├── requirements.txt
 └── README.MD
 ```
 
 ## Requirements
 
-Owing to the large scale of the benchmark in the experiments, the requirements of the benchmark of all log parsers are:
+### System
 
-- At least 16GB memory.
-- At least 100GB storage.
-- GPU (for LogPPT and UniParser).
+Owing to the large scale of the benchmark datasets in the experiments, the
+requirements of the benchmark of all log parsers are:
 
-**Installation**
+- At least 16GB memory
+- At least 100GB storage
+- GPU (for LogPPT, UniParser, and LLMParser)
 
-1. Install ```python >= 3.8```
-2. ```pip install -r requirements.txt```
+### Dependencies
+
+1. Python 3.10
+2. Packages listed in requirements.txt
 
 
-## One-Click Results Reproduction
+## Run evaluation
 
-Running the entire benchmark using Loghub-2.0 datasets requires more than **48 hours** to complete.
+To evaluate a log parser, the following steps are taken:
 
-Note that if you would like to evaluate your parser, *one can easily put their parsed results following the format as the files shown in `result/`, and run our evluation code.*
+1. The logs in the datasets are parsed by the log parser
+2. The parsed logs are evaluated for accuracy
 
-## Large-scale benchmarking
+### Running the syntax-based log parsers
 
-If you woud like to re-run all parsers using Loghub-2.0, please follow our large-scale benchmarking steps.
+The 9 benchmark syntax-based log parsers can be run with their respective runner
+scripts in the `benchmark/evaluation/` directory. Example commands are provided
+below.  Replace `Drain` with other syntax-based log parsers.
 
-### Quick Demo using Drain
-
-We give a demo script to run Drain on both Loghub-2k and Loghub-2.0, this will takes about 2-3 hours.
-
-```bash
-cd benchmark/
-./demo.sh
+```
+pushd benchmark/evaluation/
+python Drain_run.py             # For Loghub-2k datasets
+python Drain_run.py -full       # For Loghub-2.0 datasets
 ```
 
-### Evaluation of all 15 parsers
+### Running Syn+
 
-One can follow the steps to evaluate all parsers using Loghub-2k or the proposed Loghub-2.0 datasets. The overall time cost is more than 48 hours.
+Replace `Drain` with other syntax-based log parsers for it to be considered as
+the grouping module.
 
-- Run all statistic-based log parsers on Loghub-2k
-
-```bash
-cd benchmark/
-./run_statistic_2k.sh
+```
+pushd benchmark/evaluation/
+python GeLL_run.py -g Drain -full
 ```
 
-- Run all statistic-based log parsers on Loghub-2.0
+### Running semantic-based log parsers
 
-```bash
-cd benchmark/
-./run_statistic_full.sh
+Since these techniques are different from other syntax-based parsers and also
+from each other, we seperate their environments from other log parsers.  Please
+refer to the individual README files for UniParser, LogPPT, and LLMParser.
+
+
+### Evaluating the log parsing results
+
+When we have the parsed logs of the log parsers, we can evaluate the accuracy
+across 4 accuracy metrics GA, PA, FGA, and FTA with the help of our evaluator
+script. The runner scripts store the parsed logs in the `results/` directory.
+The evaluator script accepts the directory path of the parsed logs, as shown in
+the command below.  The evaluator scripts prints out the 4 accuracy metrics for
+each dataset along with the average accuracies.  The script also stores the
+evaluation results on a CSV file `results.csv` inside the directory provied.
+
 ```
-
-- Run Semantic-based log parsers: LogPPT & UniParser
-
-  Since these methods are quite different with other log parsers, and they requires a GPU to support efficient parsing, we seperate their environments from other log parsers. Please refer to the README file of [LogPPT](benchmark/LogPPT/README.md) or [UniParser](benchmark/UniParser/README.md) to use one-click script to parse and evaluate each log parsers respectively.
+pushd benchmark/
+python evaluator.py --dirpath ../result/result_Drain_full/ --use_full
+```
 
 
 ## 🔥 Citation
 
 If you use our benchmark or datasets for research, please cite the following papers:
 
-- Zhihan Jiang, Jinyang Liu, Junjie Huang, Yichen Li, Yintong Huo, Jiazhen Gu, Zhuangbin Chen, Jieming Zhu, Michael R. Lyu. [A Large-scale Evaluation for Log Parsing Techniques: How Far are We?](https://arxiv.org/abs/2308.10828) ISSTA, 2024. 
+- Zhihan Jiang, Jinyang Liu, Junjie Huang, Yichen Li, Yintong Huo, Jiazhen Gu, Zhuangbin Chen, Jieming Zhu, Michael R. Lyu. [A Large-scale Evaluation for Log Parsing Techniques: How Far are We?](https://arxiv.org/abs/2308.10828) ISSTA, 2024.
 
 - Jieming Zhu, Shilin He, Pinjia He, Jinyang Liu, Michael R. Lyu. [Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics](https://arxiv.org/abs/2008.06448). ISSRE, 2023.
 
