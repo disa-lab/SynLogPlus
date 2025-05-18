@@ -77,10 +77,15 @@ if __name__ == "__main__":
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")
         # log_file = log_file.replace(data_type, f"{data_type}-{split}")
 
+        log_group_file = Path(f'../../result/result_{grouper}_{data_type}/{dataset}_{data_type}.log_structured.csv')
+        if not log_group_file.exists():
+            print(f"Grouper did not group {dataset}")
+            continue
+
         start_time = time.time()
         parser = LogParser(dataset)
         log_messages, log_templates = parser.read_logs(input_dir, dataset, data_type=='full')
-        log_groups = parser.group_logs(Path(f'../../result/result_{grouper}_{data_type}/{dataset}_{data_type}.log_structured.csv'))
+        log_groups = parser.group_logs(log_group_file)
         # log_groups = parser.group_logs(Path(f'../../result/result_{grouper}_{data_type}/{dataset}_{data_type}-{split}.log_structured.csv'))
         predictions = parser.fix_templates(log_groups,log_messages)
         print(f"Parsing time: {time.time() - start_time}")

@@ -18,9 +18,9 @@ import os
 
 sys.path.append('../')
 
-from old_benchmark.LogMine_benchmark import benchmark_settings
-from logparser.LogMine import LogParser
-from evaluation.utils.common import datasets, common_args, unique_output_dir
+from old_benchmark.AEL_benchmark import benchmark_settings
+from logparser.AEL import LogParser
+from evaluation.utils.common import common_args, unique_output_dir
 from evaluation.utils.evaluator_main import evaluator, prepare_results
 from evaluation.utils.postprocess import post_average
 
@@ -47,16 +47,16 @@ datasets_full = [
     "Linux",
     "Apache",
     "Zookeeper",
-    "Mac",
     "Hadoop",
-    "OpenStack",
     "HealthApp",
-    # "HPC",
-    # "OpenSSH",
-    # "Spark",
-    # "Thunderbird",
-    # "BGL",
-    # "HDFS",
+    "OpenStack",
+    "HPC",
+    "Mac",
+    "OpenSSH",
+    "Spark",
+    "Thunderbird",
+    "BGL",
+    "HDFS",
 ]
 
 
@@ -65,22 +65,29 @@ if __name__ == "__main__":
     args = common_args()
     data_type = "full" if args.full_data else "2k"
     input_dir = f"../../{data_type}_dataset/"
-    output_dir = f"../../result/result_LogMine_{data_type}"
+    output_dir = f"../../result/result_AEL_{data_type}"
     # prepare result_file
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     result_file = prepare_results(
         output_dir=output_dir,
         otc=args.oracle_template_correction,
         complex=args.complex,
         frequent=args.frequent
     )
+
     if args.full_data:
         datasets = datasets_full
     else:
         datasets = datasets_2k
 
+    # dataset = 'OpenSSH'
     for dataset in datasets:
+    # for split in [1,2,3,4,5,6]:
+        # print(f"\nSplit: {split}")
         setting = benchmark_settings[dataset]
         log_file = setting['log_file'].replace("_2k", f"_{data_type}")
+        # log_file = log_file.replace(data_type, f"{data_type}-{split}")
         indir = os.path.join(input_dir, os.path.dirname(log_file))
         if os.path.exists(os.path.join(output_dir, f"{dataset}_{data_type}.log_structured.csv")):
             parser = None
@@ -96,13 +103,12 @@ if __name__ == "__main__":
             LogParser=parser,
             param_dict={
                 'log_format': setting['log_format'], 'indir': indir, 'outdir': output_dir, 'rex': setting['regex'],
-                'max_dist': setting['max_dist'], 'k': setting['k'], 'levels': setting['levels']
+                'minEventCount': setting['minEventCount'], 'merge_percent': setting['merge_percent']
             },
             otc=args.oracle_template_correction,
             complex=args.complex,
             frequent=args.frequent,
             result_file=result_file
         )  # it internally saves the results into a summary file
-
     metric_file = os.path.join(output_dir, result_file)
-    post_average(metric_file, f"LogMine_{data_type}_complex={args.complex}_frequent={args.frequent}", args.complex, args.frequent)
+    post_average(metric_file, f"AEL_{data_type}_complex={args.complex}_frequent={args.frequent}", args.complex, args.frequent)
