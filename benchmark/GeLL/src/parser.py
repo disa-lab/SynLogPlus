@@ -125,6 +125,14 @@ class LogParser:
             msg = re.sub(pat, "<*>", msg)
         return msg
 
+    def anonymize_numbers(self, log, pflag=False):
+        template = [ "<*>" if is_number(token) else token for token in self.tokenize_log(log) ]
+        template = "".join(template)
+        if pflag:
+            print("an", logsplit)
+            print("an", template)
+        return template
+
     def subvars(self, template):
         for _ in range(3):
             template = re.sub(r'\w+_<\*>', "<*>", template)
@@ -188,7 +196,8 @@ class LogParser:
 
         prev_word = None
         for idx,word in enumerate(short):
-            if is_number(word) or word.lower() in ['false','true','root','null']: # or prev_word in ['=','is','are']:
+            # if is_number(word) or word.lower() in ['false','true','root','null']: # or prev_word in ['=','is','are']:
+            if word.lower() in ['false','true','root','null']: # or prev_word in ['=','is','are']:
                 if pflag:
                     print("a1",word)
                 template.append('<*>')
@@ -232,10 +241,11 @@ class LogParser:
 
         return template
 
-    def refine_template(self, msg,templ, pflag=False):
+    def refine_template(self, msg, templ, pflag=False):
         if pflag:
             print('f', msg)
-        template = [ "<*>" if is_number(word) or word_is_variable(word) else word for word in msg ]
+        # template = [ "<*>" if is_number(word) or word_is_variable(word) else word for word in msg ]
+        template = [ "<*>" if word_is_variable(word) else word for word in msg ]
         template = "".join(template)
         return template
 
@@ -250,12 +260,14 @@ class LogParser:
                 new_msgsplit.append(split[-1])
             else:
                 new_msgsplit.append(split)
+        if pflag:
+            print("h", new_msgsplit)
         return new_msgsplit
 
     def post_process(self, log, template, pflag=False):
         template = self.subvars(template)
-        template = self.fix_spaces(log, template, pflag)
-        template = re.sub(r'\<\*\> sec$', '<*>', template)
+        # template = self.fix_spaces(log, template, pflag)
+        # template = re.sub(r'\<\*\> sec$', '<*>', template)
         return template
 
     def is_a_match(self, log, template):
@@ -280,7 +292,7 @@ class LogParser:
             desc=self.dataset, ascii=' >-'
         ):
             pflag = False
-            # if 1 in group_member_indices:
+            # if 863 in group_member_indices:
             #     pflag = True
 
             logs_in_this_group = [ log_messages[iii] for iii in group_member_indices ]
@@ -294,6 +306,9 @@ class LogParser:
 
             anonymized_logs = [
                 self.anonymize_with_regex(log) for log in sampled_logs
+            ]
+            anonymized_logs = [
+                self.anonymize_numbers(log) for log in anonymized_logs
             ]
             tokenized_logs = [
                 list(filter(None, self.tokenize_log(log, pflag)))
@@ -341,3 +356,4 @@ class LogParser:
 
 
         return predictions
+
