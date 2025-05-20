@@ -78,10 +78,12 @@ def train_data_sample(project, shot):
             'output': template_list}
     res_df = pd.DataFrame(data)
     res_df.insert(0, 'instruction', "Parse the input log to log template.")
-    save_path = f"./training_samples_{dtype}/{str(shot)}_{_n}/{project}/"
+    save_path = f"./training_data_{dtype}/{str(shot)}_{_n}/{project}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     res_df.to_json(save_path + "train.json", orient="records")
+    with open(f"{save_path}/training_samples.csv", "w") as f:
+        f.write( "\n".join(map(str,sampled_log)) )
 
 
 project_list = args.systems.split(",")

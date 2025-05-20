@@ -16,7 +16,7 @@ rootdir = Path(__file__).absolute().parent.parent
 techniques = [
     "LFA", "LogCluster", "Logram",
     # "LenMa", "LogMine",
-    "LogSig", "SHISO", "LenMa", #"IPLoM", #"LogMine",
+    "SHISO", "LogMine", "LenMa", #"IPLoM", #"LogMine", "LogSig",
     "AEL", "Drain", "Spell",
     "UniParser", "LogPPT",
     "LLMParser", # "LLMParser_1000", "LLMParser_1000h",

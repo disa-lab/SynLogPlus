@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import hashlib
 from datetime import datetime
-
+from tqdm.auto import tqdm
 
 class Logcluster:
     def __init__(self, logTemplate='', logIDL=None):
@@ -254,7 +254,7 @@ class LogParser:
         self.load_data()
 
         count = 0
-        for idx, line in self.df_log.iterrows():
+        for idx, line in tqdm(self.df_log.iterrows(),total=len(self.df_log)):
             logID = line['LineId']
             logmessageL = self.preprocess(line['Content']).strip().split()
             # logmessageL = filter(lambda x: x != '', re.split('[\s=:,]', self.preprocess(line['Content'])))

@@ -57,7 +57,7 @@ suffix = '' if args.full else '_corrected'
 logdir = 'full_dataset' if dtype== 'full' else 'logs'
 
 def prepare_data(project,precentage):
-    dataset_path = f"./training_samples_{dtype}/{precentage}/{project}/train.json"
+    dataset_path = f"./training_data_{dtype}/{precentage}/{project}/train.json"
     raw_dataset = pd.read_json(dataset_path)
     # raw_dataset = raw_dataset.head(3)
     raw_dataset = raw_dataset.drop(columns=['instruction'])

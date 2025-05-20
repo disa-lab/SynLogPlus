@@ -12,7 +12,7 @@ import pandas as pd
 from datetime import datetime
 from collections import defaultdict
 from functools import reduce
-from tqdm import tqdm
+from tqdm.auto import tqdm
 
 class Event():
     def __init__(self, logidx, Eventstr=""):

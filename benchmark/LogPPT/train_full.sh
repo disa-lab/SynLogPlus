@@ -1,13 +1,11 @@
 #!/bin/bash
 
 shot=32
-max_train_steps=400
+max_train_steps=1000
 task_output_dir="../../result/result_LogPPT_full/"
 
 # max_train_steps=0
 # task_output_dir="../../result/result_LogPPT-untrained_full/"
-
-dataset=OpenSSH
 
 
 for dataset in Apache Hadoop HealthApp HPC Linux Mac OpenSSH OpenStack Proxifier Zookeeper
@@ -32,6 +30,7 @@ do
     elapsed=$(echo "$end - $start" | bc)
   done
 
+# dataset=OpenSSH
 # for split in 1 2 3 4 5 6
 # do
 #   echo "Split: ${split}"
@@ -45,11 +44,11 @@ do
 #     --lr_scheduler_type polynomial \
 #     --task_name log-parsing \
 #     --num_warmup_steps 20 \
-#     --log_file ../../full_dataset/${dataset}/${dataset}_full.log_structured.csv \
+#     --log_file ../../full_dataset/${dataset}/${dataset}_full-${split}.log_structured.csv \
 #     --shot $shot \
 #     --dataset_name ${dataset} \
-#     --max_train_steps ${max_train_steps} \
-#     --task_output_dir ${task_output_dir}
+#     --max_train_steps 0 \
+#     --task_output_dir /tmp/LogPPT-efficiency-experiment
 #     end=$(date +%s.%N)
 #     elapsed=$(echo "$end - $start" | bc)
 #   done

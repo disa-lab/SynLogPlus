@@ -37,7 +37,7 @@ class LogParser(object):
     def firstpass(self):
         headers, regex = self.generate_logformat_regex(self.logformat)
         self.df_log = self.log_to_dataframe(os.path.join(self.path, self.logname), regex, headers, self.logformat)
-            
+
         self.wordseqs = []
         for idx, line in self.df_log.iterrows():
             line = line['Content']
@@ -59,7 +59,7 @@ class LogParser(object):
         templatel = []
         for wordseq in self.wordseqs:
             countsl = [self.wordpos_count[(pos, word)] for pos, word in enumerate(wordseq) if word != "<*>"]
-            if len(countsl) > 1:              
+            if len(countsl) > 1:
                 # find max gap
                 countsl_sorted = sorted(countsl)
                 gaps = [(countsl_sorted[idx + 1] - countsl_sorted[idx], idx) for idx in range(len(countsl_sorted) - 1)]
@@ -91,7 +91,7 @@ class LogParser(object):
         self.df_log.to_csv(os.path.join(self.savePath, self.logname + '_structured.csv'), index=False)
 
     def log_to_dataframe(self, log_file, regex, headers, logformat):
-        """ Function to transform log file to dataframe 
+        """ Function to transform log file to dataframe
         """
         log_messages = []
         linecount = 0

@@ -87,6 +87,6 @@ if __name__ == '__main__':
                     f.write(json.dumps(s) + "\n")
 
             labeled_samples = [row['Content'] for _, row in logdf.take(samples_ids).iterrows()]
-            with open("datasets/{0}/{1}shot/2k.csv".format(dataset, shot), "w") as f:
+            with open("datasets/{0}/{1}shot/training_samples.csv".format(dataset, shot), "w") as f:
                 f.write( "\n".join(map(str,labeled_samples)) )
 
