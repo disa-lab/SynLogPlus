@@ -95,7 +95,7 @@ if __name__ == "__main__":
     flag = False
     for dataset in datasets:
         # if dataset != 'Apache': continue
-        if args.use_full and dataset in [ 'Android','Windows', 'BGL','Thunderbird' ]: continue
+        if args.use_full and dataset in [ 'Android','Windows', 'Spark', 'HDFS', 'BGL', 'Thunderbird' ]: continue
         if flag: print(dataset)
 
         dataset_dir = Path('/local/home/enan/projects/loghub-2.0')
@@ -126,6 +126,9 @@ if __name__ == "__main__":
 
         if args.exclude_training_samples:
             if args.training_samples_file:
+                # LogPPT/datasets/{}/32shot/training_samples.csv
+                # UniParser/full_annotations/{}/training_samples.csv
+                # LLMParser/training_data_full/{}/training_samples.csv
                 with open(args.training_samples_file.format(dataset), newline='') as f:
                     reader = csv.reader(f)
                     # training_samples_indices = [ int(idx) for idx in list(reader)[0] ]
@@ -180,5 +183,6 @@ if __name__ == "__main__":
     df.sort_index(inplace=True)
     df.loc['Average'] = df.mean()
     df[df.columns] = df[df.columns].map(lambda x: '{0:.03}'.format(x))
-    df.to_csv(Path(dirpath) / 'results.csv')
+    result_file = 'results-unseen.csv' if args.exclude_training_samples else 'results.csv'
+    df.to_csv(Path(dirpath) / result_file)
     print(df)
