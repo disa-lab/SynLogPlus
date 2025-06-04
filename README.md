@@ -1,4 +1,4 @@
-# Syn+: Improving the Templates Identified by Syntax-based Log Parsers
+# SynLog+: Improving the Templates Identified by Syntax-based Log Parsers
 
 ## Datasets Characteristics
 
@@ -71,7 +71,7 @@ python Drain_run.py             # For Loghub-2k datasets
 python Drain_run.py -full       # For Loghub-2.0 datasets
 ```
 
-### Running Syn+
+### Running SynLog+
 
 Replace `Drain` with other syntax-based log parsers for it to be considered as
 the grouping module.
