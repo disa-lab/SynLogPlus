@@ -1,1 +1,1 @@
-from .src.parser import *
+from .SynLogPlus import *

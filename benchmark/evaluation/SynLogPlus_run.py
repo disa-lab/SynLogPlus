@@ -5,7 +5,7 @@ import torch
 sys.path.append('../')
 
 from transformers import set_seed
-from SynLogPlug import *
+from SynLogPlus import *
 from old_benchmark.Drain_benchmark import benchmark_settings
 from evaluation.utils.common import common_args, unique_output_dir
 from evaluation.utils.evaluator_main import evaluator, prepare_results
