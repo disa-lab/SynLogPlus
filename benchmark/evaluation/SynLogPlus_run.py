@@ -5,7 +5,7 @@ import torch
 sys.path.append('../')
 
 from transformers import set_seed
-from GeLL import *
+from SynLogPlug import *
 from old_benchmark.Drain_benchmark import benchmark_settings
 from evaluation.utils.common import common_args, unique_output_dir
 from evaluation.utils.evaluator_main import evaluator, prepare_results
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     grouper = args_.grouper
     data_type = "full" if args.full_data else "2k"
     input_dir = f"../../{data_type}_dataset/"
-    output_dir = f"../../result/result_GeLL-{grouper}_{data_type}"
+    output_dir = f"../../result/result_SynLogPlus-{grouper}_{data_type}"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

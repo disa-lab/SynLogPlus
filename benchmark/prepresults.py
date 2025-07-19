@@ -20,7 +20,7 @@ techniques = [
     "AEL", "Drain", "Spell",
     "UniParser", "LogPPT",
     "LLMParser", # "LLMParser_1000", "LLMParser_1000h",
-    "GeLL-Drain",
+    "SynLogPlus-Drain",
 ]
 
 series_GA  = []

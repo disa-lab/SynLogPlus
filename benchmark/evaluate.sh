@@ -11,7 +11,7 @@ fi
 echo $type
 echo $param
 
-techniques="GeLL-AEL GeLL-Drain GeLL-IPLoM GeLL-LFA GeLL-LogCluster GeLL-Logram GeLL-LogSig GeLL-MoLFI GeLL-SHISO GeLL-Spell"
+techniques="SynLogPlus-AEL SynLogPlus-Drain SynLogPlus-IPLoM SynLogPlus-LFA SynLogPlus-LogCluster SynLogPlus-Logram SynLogPlus-LogSig SynLogPlus-MoLFI SynLogPlus-SHISO SynLogPlus-Spell"
 
 for technique in ${techniques}
 do
