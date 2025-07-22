@@ -27,7 +27,8 @@
 │   ├── old_benchmark/
 │   ├── LogPPT/     # contains the modified source code of LogPPT
 │   ├── LLMParser/  # contains the modified source code of LLMParser
-│   └── UniParser/  # contains the source code of implemented UniParser
+│   ├── UniParser/  # contains the source code of implemented UniParser
+│   └── SynLogPlus/ # contains the source code of SynLogPlus
 ├── result/
 │   ├── ...... #
 │   └── ...... # contains the output evaluation metric files and all parsed results
