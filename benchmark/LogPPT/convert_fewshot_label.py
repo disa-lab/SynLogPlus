@@ -43,7 +43,7 @@ def process(dataset):
                 data = json.loads(line)
                 new_prompt.append(data)
         new_prompt = modify_prompt(new_prompt, dataset)
-        with open (f"datasets/{dataset}/{shot}shot/2.json", "w") as fw:
+        with open (f"datasets/{dataset}/{shot}shot/training_samples_full.json", "w") as fw:
             for data in new_prompt:
                 fw.write(json.dumps(data) + "\n")
 

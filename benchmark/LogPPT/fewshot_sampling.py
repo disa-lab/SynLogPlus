@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
             labeled_samples = [(row['Content'], template_dict[row['Content']]) for _, row in logdf.take(samples_ids).iterrows()]
             labeled_samples = [{"text": x[0], "label": x[1], "type": 1} for x in labeled_samples]
-            with open("datasets/{0}/{1}shot/{2}.json".format(dataset, shot, 1), "w") as f:
+            with open("datasets/{0}/{1}shot/training_samples_2k.json".format(dataset, shot, 1), "w") as f:
                 for s in labeled_samples:
                     f.write(json.dumps(s) + "\n")
 

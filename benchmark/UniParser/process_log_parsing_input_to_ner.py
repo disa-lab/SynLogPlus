@@ -112,7 +112,7 @@ for dataset in datasets:
     write_ner_tsv_data([pairs[i] for i in dev], os.path.join(output_dir, 'Loghub-2.0_bin_random', 'val.tsv'))
     write_ner_tsv_data([pairs[i] for i in test], os.path.join(output_dir, 'Loghub-2.0_bin_random', 'test.tsv'))
 
-    with open(f"{output_dir}/training_samples.csv", "w") as f:
+    with open(f"{output_dir}/training_samples_{data_type}.csv", "w") as f:
         # f.write( "\n".join(map(str,train)) )
         _logs = [ _logs[id] for id in train ]
         f.write( "\n".join(map(str,_logs)) )

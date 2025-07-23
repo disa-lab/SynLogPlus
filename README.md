@@ -25,6 +25,7 @@
 │   ├── evaluation/ # Evaluation scripts for benchmark log parsers
 │   ├── logparser/  # Benchmark log parsers (syntax-based)
 │   ├── old_benchmark/
+│   ├── Log3T/      # contains the modified source code of Log3T
 │   ├── LogPPT/     # contains the modified source code of LogPPT
 │   ├── LLMParser/  # contains the modified source code of LLMParser
 │   ├── UniParser/  # contains the source code of implemented UniParser
@@ -60,7 +61,7 @@ To evaluate a log parser, the following steps are taken:
 1. The logs in the datasets are parsed by the log parser
 2. The parsed logs are evaluated for accuracy
 
-### Running the syntax-based log parsers
+### Running syntax-based log parsers
 
 The 9 benchmark syntax-based log parsers can be run with their respective runner
 scripts in the `benchmark/evaluation/` directory. Example commands are provided
@@ -72,6 +73,14 @@ python Drain_run.py             # For Loghub-2k datasets
 python Drain_run.py -full       # For Loghub-2.0 datasets
 ```
 
+
+### Running semantic-based log parsers
+
+Since these techniques are different from other syntax-based parsers and also
+from each other, we seperate their environments from other log parsers.  Please
+refer to the individual README files for UniParser, LogPPT, and LLMParser.
+
+
 ### Running SynLog+
 
 Replace `Drain` with other syntax-based log parsers for it to be considered as
@@ -80,13 +89,8 @@ the grouping module.
 ```
 pushd benchmark/evaluation/
 python SynLogPlus_run.py -g Drain -full
+popd
 ```
-
-### Running semantic-based log parsers
-
-Since these techniques are different from other syntax-based parsers and also
-from each other, we seperate their environments from other log parsers.  Please
-refer to the individual README files for UniParser, LogPPT, and LLMParser.
 
 
 ### Evaluating the log parsing results
@@ -115,3 +119,126 @@ be highlighted with bold font.
 ```
 pushd prepresults.py -full
 ```
+
+## Replicate RQs
+
+### RQ1 & RQ2
+
+We need to generate results (`*.log_structured.csv` files) for the 9 syntax-based
+and 3 semantic-based parsers.  For each of the syntax-based parsers, run its runner
+script and then run the evaluator script on the results. For example, for Drain, run:
+
+```
+pushd benchmark/evaluation/
+python Drain_run.py -full
+popd
+pushd benchmark/
+python evaluator.py --dirpath ../result/result_Drain_full/ --use_full
+```
+
+The semantic-based log parsers are unique to each other and require different
+steps to generate the results.  Then run the evaluator scripts (see above) on
+the results.
+
+```
+# UniParser
+pushd benchmark/UniParser/
+python process_log_parsing_input_to_ner.py -full
+python TrainNERLogAll.py -epoch 1000 -full
+python InferNERLogAll.py -epoch 1000 -full
+popd
+
+# LogPPT
+pushd benchmark/LogPPT/
+python fewshot_sampling.py
+python convert_fewshot_label.py
+sh train.sh
+popd
+
+# LLMParser
+# Refer to the instructions in benchmark/LLMParser/README.md
+```
+
+After you have run the evaluator script on the results of all 12 benchmark log
+parsers, you can use the `benchmark/prepresults.py` script to unite all the
+evaluation scores in a single excel sheet.
+
+```
+pushd benchmark/
+python prepresults.py -full
+popd
+```
+
+
+### RQ3
+
+To evaluate accuracy of semantic-based log parsers on unseen log data, you can
+use the following parameter to the evaluator script.
+
+```
+pushd benchmark/
+python evaluator.py --dirpath ../result/result_<parser>_full/ --use_full \
+    --exclude_training_samples    \
+    --training_samples_file <path-to-file>
+popd
+```
+
+Here `<path-to-file>` is the path to a csv file containing a list of the
+training samples.  The evaluator excludes those logs from evaluation.  The
+csv file paths for each of the 3 benchmark semantic-based log parsers are:
+
+- UniParser: `benchmark/UniParser/full_annotations/<dataset>/training_samples.csv`
+- LogPPT: `benchmark/LogPPT/datasets/<dataset>/32shot/training_samples.csv`
+- LLMParser: `benchmark/LLMParser/training_samples_full/50_2000h/<dataset>/training_samples.csv`
+
+
+### RQ4 & RQ5
+
+For RQ4 and RQ5, we use a modified Log3T.  To generate the results, go into
+'benchmark/Log3T/' directory, then follow these directions.
+
+Use the `train.py` script to train the model on the log data.
+
+```
+python train.py         # For Loghub-2k dataset
+python train.py -full   # For Loghub-2.0 dataset
+```
+
+Use the `evaluate.py` script to run the trained model on the log data.
+Use `-full` argument if you want to evaluate on the Loghub-2.0 dataset instead
+of Loghub-2k dataset.
+
+```
+# Evaluate two-phase
+python evaluate.py
+
+# Evaluate single-phase
+python evaluate.py --eval-training
+
+# Evaluate grouping before template identification (Log3T' in the paper)
+python evaluate.py --group-first
+```
+
+The results will be stored in the directories 'Result-two-phase', 'Result-group-first',
+'Result-single-phase'.  Use the `benchmark/evaluator.py` script to evaluate the results.
+
+
+### RQ6 & RQ7
+
+The results for syntax-based parsers need to have been generated prior to
+running this experiment.
+
+```
+pushd benchmark/evaluation/
+for grouper in AEL Drain LFA LenMa LogCluster LogMine Logram SHISO Spell; do
+    python SynLogPlus_run.py -g Drain -full;
+done
+cd ..
+
+for grouper in AEL Drain LFA LenMa LogCluster LogMine Logram SHISO Spell; do
+    python evaluator.py --dirpath ../result/result_${grouper}_full/ \
+      --pathformat "{}_full.log_structured.csv" --use_full
+done
+popd
+```
+

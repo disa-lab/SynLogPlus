@@ -81,8 +81,8 @@ def train_data_sample(project, shot):
     save_path = f"./training_data_{dtype}/{str(shot)}_{_n}/{project}/"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    res_df.to_json(save_path + "train.json", orient="records")
-    with open(f"{save_path}/training_samples.csv", "w") as f:
+    res_df.to_json(save_path + "train_{dtype}.json", orient="records")
+    with open(f"{save_path}/training_samples_{dtype}.csv", "w") as f:
         f.write( "\n".join(map(str,sampled_log)) )
 
 
