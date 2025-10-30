@@ -27,6 +27,7 @@
 │   ├── old_benchmark/
 │   ├── Log3T/      # contains the modified source code of Log3T
 │   ├── LogPPT/     # contains the modified source code of LogPPT
+│   ├── LILAC/      # contains the source code of LILAC
 │   ├── LLMParser/  # contains the modified source code of LLMParser
 │   ├── UniParser/  # contains the source code of implemented UniParser
 │   └── SynLogPlus/ # contains the source code of SynLogPlus
@@ -46,7 +47,7 @@ requirements of the benchmark of all log parsers are:
 
 - At least 16GB memory
 - At least 100GB storage
-- GPU (for LogPPT, UniParser, and LLMParser)
+- GPU (for LogPPT, UniParser, LLMParser, and LILAC)
 
 ### Dependencies
 
@@ -117,7 +118,9 @@ SynLog+.  For each dataset and for the average scores, the highest accuracy will
 be highlighted with bold font.
 
 ```
-pushd prepresults.py -full
+pushd benchmark/
+python prepresults.py -full
+popd
 ```
 
 ## Replicate RQs
@@ -152,7 +155,7 @@ popd
 pushd benchmark/LogPPT/
 python fewshot_sampling.py
 python convert_fewshot_label.py
-sh train.sh
+sh train_full.sh
 popd
 
 # LLMParser
@@ -231,7 +234,7 @@ running this experiment.
 ```
 pushd benchmark/evaluation/
 for grouper in AEL Drain LFA LenMa LogCluster LogMine Logram SHISO Spell; do
-    python SynLogPlus_run.py -g Drain -full;
+    python SynLogPlus_run.py -g ${grouper} -full;
 done
 cd ..
 
@@ -241,4 +244,3 @@ for grouper in AEL Drain LFA LenMa LogCluster LogMine Logram SHISO Spell; do
 done
 popd
 ```
-
