@@ -52,10 +52,10 @@ datasets_full = [
     "HPC",
     "Mac",
     "OpenSSH",
-    # "Spark",
-    # "Thunderbird",
-    # "BGL",
-    # "HDFS",
+    "Spark",
+    "Thunderbird",
+    "BGL",
+    "HDFS",
 ]
 
 

@@ -106,6 +106,7 @@ project_list = args.systems.split(",")
 
 if dtype == 'full':
     exclusion_list = ['Android','Windows','Spark','BGL','HDFS','Thunderbird']
+    exclusion_list = ['Android','Windows']
     project_list = [ p for p in project_list if p not in exclusion_list ]
 
 for project in project_list:
@@ -409,6 +410,7 @@ for project in project_list:
     if not validation:
         plm.save_pretrained(output_dir)
         tokenizer.save_pretrained(output_dir)
+
     finish_time = datetime.now()
     duration = finish_time - start_time
 

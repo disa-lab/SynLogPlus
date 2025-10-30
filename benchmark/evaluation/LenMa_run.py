@@ -54,10 +54,10 @@ datasets_full = [
     "HealthApp",
     "HPC",
     "OpenSSH",
-    # "Spark",
-    # "Thunderbird",
-    # "BGL",
-    # "HDFS",
+    "Spark",
+    "Thunderbird",
+    "BGL",
+    "HDFS",
 ]
 
 

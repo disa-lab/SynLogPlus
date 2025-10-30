@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo 'Statring LogPPT run'
+echo 'Starting LogPPT run'
 echo $(date)
 
 # conda activate LogPPT

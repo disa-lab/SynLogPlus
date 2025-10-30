@@ -95,7 +95,8 @@ if __name__ == "__main__":
     flag = False
     for dataset in datasets:
         # if dataset != 'Apache': continue
-        if args.use_full and dataset in [ 'Android','Windows', 'Spark', 'HDFS', 'BGL', 'Thunderbird' ]: continue
+        # if args.use_full and dataset in [ 'Android','Windows', 'Spark', 'HDFS', 'BGL', 'Thunderbird' ]: continue
+        if args.use_full and dataset in [ 'Android','Windows', ]: continue
         if flag: print(dataset)
 
         dataset_dir = Path('/local/home/enan/projects/loghub-2.0')

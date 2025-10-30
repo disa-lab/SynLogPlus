@@ -44,15 +44,16 @@ if __name__ == "__main__":
     if data_type == '2k':
         datasets += ['Android','Windows']
 
-    if data_type == 'full':
-        datasets = [dataset for dataset in datasets if dataset not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
+    # if data_type == 'full':
+    #     datasets = [dataset for dataset in datasets if dataset not in [ 'BGL', 'HDFS', 'Spark', 'Thunderbird' ] ]
 
     # datasets = ['Proxifier']
     # dataset = 'OpenSSH'
     # for split in [1,2,3,4,5,6]:
     for dataset in datasets:
+        # if dataset != 'OpenStack': continue
         training_config = {
-            "max_epochs": 50,
+            "max_epochs": config.max_epochs, # 50, # enan
             "no_improvement": 10,
             "batch_size": 16,
             "lr": 1e-1,

@@ -27,6 +27,6 @@ sh LLMs/flan-t5-base.sh
 ### Run
 
 ```
-python data_sampling --full --shot 50
+python data_sampling.py --full --shot 50
 python LLMParser.py --full --train_percentage 50_2000h --num_epochs 50 --model 'flan-t5-base'
 ```
