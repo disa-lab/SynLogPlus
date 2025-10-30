@@ -1,4 +1,4 @@
-# SynLog+: Improving the Templates Identified by Syntax-based Log Parsers
+# SynLog+: Optimized Log Parsing with Syntactic Modifications
 
 ## Datasets Characteristics
 
